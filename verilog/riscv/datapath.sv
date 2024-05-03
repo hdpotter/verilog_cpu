@@ -2,8 +2,13 @@ module datapath(
     input clk
 );
 
-wire instr;
+logic [31:0] pc;
+wire [31:0] instr;
 
+program_memory program_memory(
+    .addr(pc),
+    .instr(instr)
+);
 
 wire [2:0] funct3;
 wire [6:0] funct7;
@@ -27,7 +32,6 @@ wire [4:0] rs1_addr;
 wire [4:0] rs2_addr;
 wire [4:0] rd_addr;
 
-logic [31:0] pc;
 
 wire [31:0] imm;
 
@@ -91,7 +95,6 @@ wire mem_out;
 
 memory memory(
     .addr(alu_out),
-    .pc(pc),
     .value(rs2),
     .funct3(funct3),
 
@@ -99,8 +102,7 @@ memory memory(
     .write(s_en),
     .clk(clk),
 
-    .data(mem_out),
-    .instr(instr)
+    .data(mem_out)
 );
 
 wire branch;

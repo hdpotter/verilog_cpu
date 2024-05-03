@@ -2,23 +2,18 @@
 
 module memory(
     input [31:0] addr,
-    input [31:0] pc,
-    
     input [31:0] value,
     input [2:0] funct3,
     input read,
     input write,
     input clk,
 
-    output logic [31:0] data,
-    output [31:0] instr
+    output logic [31:0] data
 );
 
 parameter MEMSIZE = 64;
 
 logic [31:0] mem [MEMSIZE-1:0];
-
-assign instr = mem[pc];
 
 always @(posedge clk) begin
     if(read) begin
