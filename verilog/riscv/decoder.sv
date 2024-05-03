@@ -11,9 +11,11 @@ module decoder(
 
     output r_en,
     output i_en,
+    output im_en, // memory section of i-type instruction space
     output s_en,
     output b_en,
-    output j_en,
+    output jal_en,
+    output jalr_en,
 
     output lui_en,
     output auipc_en
@@ -21,9 +23,12 @@ module decoder(
 
 assign r_en = instr[6:0] == 7'b0110011;
 assign i_en = instr[6:0] == 7'b0010011;
+assign im_en = instr[6:0] == 7'b0000011;
 assign s_en = instr[6:0] == 7'b0100011;
 assign b_en = instr[6:0] == 7'b1100011;
-assign j_en = instr[6:0] == 7'b1101111;
+
+assign jal_en = instr[6:0] == 7'b1101111;
+assign jalr_en = instr[6:0] == 7'b1100111;
 
 assign lui_en = instr[6:0] == 7'b0110111;
 assign auipc_en = instr[6:0] == 7'b0010111;
@@ -46,7 +51,7 @@ always @(*) begin
     if(i_en | s_en) imm = {{20{imm_sign}}, imm_is};
     else if(b_en) imm = {{19{imm_sign}}, imm_b, 1'd0};
     else if(lui_en | auipc_en) imm = {imm_u, 20'd0};
-    else if(j_en) imm = {{20{imm_sign}}, imm_j};
+    else if(jal_en) imm = {{20{imm_sign}}, imm_j};
     else imm = 32'd0;
 end
 

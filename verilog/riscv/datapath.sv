@@ -15,9 +15,11 @@ wire imm_sign;
 
 wire r_en;
 wire i_en;
+wire im_en;
 wire s_en;
 wire b_en;
-wire j_en;
+wire jal_en;
+wire jalr_en;
 wire lui_en;
 wire auipc_en;
 
@@ -25,7 +27,7 @@ wire [4:0] rs1_addr;
 wire [4:0] rs2_addr;
 wire [4:0] rd_addr;
 
-wire [31:0] pc;
+logic [31:0] pc;
 
 wire [31:0] imm;
 
@@ -42,9 +44,11 @@ decoder decoder(
 
     .r_en(r_en),
     .i_en(i_en),
+    .im_en(im_en),
     .s_en(s_en),
     .b_en(b_en),
-    .j_en(j_en),
+    .jal_en(jal_en),
+    .jalr_en(jalr_en),
     .lui_en(lui_en),
     .auipc_en(auipc_en)
 );
@@ -53,7 +57,7 @@ wire [31:0] rs1;
 wire [31:0] rs2;
 wire [31:0] reg_in;
 
-wire write_reg = r_en | i_en | j_en | lui_en | auipc_en;
+wire write_reg = r_en | i_en | jal_en | jalr_en | lui_en | auipc_en;
 
 registers registers(
     .rs1_addr(rs1_addr),
@@ -70,8 +74,8 @@ registers registers(
 
 wire [31:0] imm_shift = lui_en | auipc_en ? imm << 12 : imm;
 
-wire [31:0] alu_in1 = b_en | j_en | lui_en | auipc_en ? pc : rs1;
-wire [31:0] alu_in2 = i_en | s_en | b_en | j_en | lui_en | auipc_en ? imm_shift : rs2;
+wire [31:0] alu_in1 = b_en | jal_en | lui_en | auipc_en ? pc : rs1;
+wire [31:0] alu_in2 = i_en | s_en | b_en | jal_en | jalr_en | lui_en | auipc_en ? imm_shift : rs2;
 
 wire [31:0] alu_out;
 
@@ -83,9 +87,6 @@ alu alu(
     .rd(alu_out)
 );
 
-wire mem_read;
-wire mem_write;
-
 wire mem_out;
 
 memory memory(
@@ -94,12 +95,37 @@ memory memory(
     .value(rs2),
     .funct3(funct3),
 
-    .read(mem_read),
-    .write(mem_write),
+    .read(im_en),
+    .write(s_en),
     .clk(clk),
 
     .data(mem_out),
     .instr(instr)
 );
+
+wire branch;
+
+conditions conditions(
+    .rs1(rs1),
+    .rs2(rs2),
+    .func3(func3),
+    .branch(branch)
+);
+
+always @(posedge clk) begin
+    if((b_en & branch) | jal_en | jalr_en) begin
+        pc <= alu_out;
+    end else begin
+        pc <= pc + 4;
+    end
+end
+
+assign rd =
+    r_en | i_en ? alu_out :
+    im_en ? mem_out :
+    jal_en | jalr_en ? pc + 4 :
+    lui_en ? imm_shift :
+    auipc_en ? alu_out :
+    0;
 
 endmodule
