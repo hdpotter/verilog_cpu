@@ -1,40 +1,48 @@
-module datapath(
-    input clk
+
+`define RVFI
+
+module datapath
 
 `ifdef RVFI
-    `define NRET 1
-    `define ILEN 32
+    #(
+        parameter NRET = 1,
+        parameter ILEN = 32,
+        parameter XLEN = 32
+    ) (
 
     // instruction metadata
-    output [NRET        - 1 : 0] rvfi_valid,
-    output [NRET *   64 - 1 : 0] rvfi_order,
-    output [NRET * ILEN - 1 : 0] rvfi_insn,
-    output [NRET        - 1 : 0] rvfi_trap,
-    output [NRET        - 1 : 0] rvfi_halt,
-    output [NRET        - 1 : 0] rvfi_intr,
-    output [NRET * 2    - 1 : 0] rvfi_mode,
-    output [NRET * 2    - 1 : 0] rvfi_ixl,
+    output logic [NRET        - 1 : 0] rvfi_valid,
+    output logic [NRET *   64 - 1 : 0] rvfi_order,
+    output logic [NRET * ILEN - 1 : 0] rvfi_insn,
+    output logic [NRET        - 1 : 0] rvfi_trap,
+    output logic [NRET        - 1 : 0] rvfi_halt,
+    output logic [NRET        - 1 : 0] rvfi_intr,
+    output logic [NRET * 2    - 1 : 0] rvfi_mode,
+    output logic [NRET * 2    - 1 : 0] rvfi_ixl,
 
     // integer register read/write
-    output [NRET *    5 - 1 : 0] rvfi_rs1_addr,
-    output [NRET *    5 - 1 : 0] rvfi_rs2_addr,
-    output [NRET * XLEN - 1 : 0] rvfi_rs1_rdata,
-    output [NRET * XLEN - 1 : 0] rvfi_rs2_rdata,
-    output [NRET *    5 - 1 : 0] rvfi_rd_addr,
-    output [NRET * XLEN - 1 : 0] rvfi_rd_wdata,
+    output logic [NRET *    5 - 1 : 0] rvfi_rs1_addr,
+    output logic [NRET *    5 - 1 : 0] rvfi_rs2_addr,
+    output logic [NRET * XLEN - 1 : 0] rvfi_rs1_rdata,
+    output logic [NRET * XLEN - 1 : 0] rvfi_rs2_rdata,
+    output logic [NRET *    5 - 1 : 0] rvfi_rd_addr,
+    output logic [NRET * XLEN - 1 : 0] rvfi_rd_wdata,
 
     // program counter
-    output [NRET * XLEN - 1 : 0] rvfi_pc_rdata,
-    output [NRET * XLEN - 1 : 0] rvfi_pc_wdata,
+    output logic [NRET * XLEN - 1 : 0] rvfi_pc_rdata,
+    output logic [NRET * XLEN - 1 : 0] rvfi_pc_wdata,
 
     // memory access
-    output [NRET * XLEN   - 1 : 0] rvfi_mem_addr,
-    output [NRET * XLEN/8 - 1 : 0] rvfi_mem_rmask,
-    output [NRET * XLEN/8 - 1 : 0] rvfi_mem_wmask,
-    output [NRET * XLEN   - 1 : 0] rvfi_mem_rdata,
-    output [NRET * XLEN   - 1 : 0] rvfi_mem_wdata
+    output logic [NRET * XLEN   - 1 : 0] rvfi_mem_addr,
+    output logic [NRET * XLEN/8 - 1 : 0] rvfi_mem_rmask,
+    output logic [NRET * XLEN/8 - 1 : 0] rvfi_mem_wmask,
+    output logic [NRET * XLEN   - 1 : 0] rvfi_mem_rdata,
+    output logic [NRET * XLEN   - 1 : 0] rvfi_mem_wdata,
+`else
+(
 `endif
 
+    input clk
 );
 
 logic [31:0] pc;
@@ -98,7 +106,7 @@ wire [31:0] reg_in;
 
 wire write_reg = r_en | i_en | jal_en | jalr_en | lui_en | auipc_en;
 
-`ifdef RVSI
+`ifdef RVFI
 logic [31:0] rd_out;
 `endif
 
@@ -135,9 +143,9 @@ alu alu(
 
 wire mem_out;
 
-`ifdef RVSI
-logic rmask,
-logic wmask,
+`ifdef RVFI
+logic rmask;
+logic wmask;
 `endif
 
 memory memory(
