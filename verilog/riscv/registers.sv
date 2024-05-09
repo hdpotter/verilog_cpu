@@ -7,6 +7,10 @@ module registers(
     output [31:0] rs1,
     output [31:0] rs2,
 
+`ifdef RVSI
+    output [31:0] rd_out,
+`endif
+
     input write,
     input clk
 );
@@ -18,8 +22,18 @@ assign rs2 = rs2_addr == 0 ? 0 : mem[rs2_addr];
 
 always @(posedge clk) begin
     if(write) begin
-        mem[rd_addr] = rd;
+        mem[rd_addr] <= rd;
+`ifdef RVSI
+        rd_out <= rd; //todo: get this to actually read memory
+`endif
     end
+`ifdef RSVI
+    else begin
+        rd_out <= 32'd0;
+    end
+`endif
+
+
 end
 
 endmodule

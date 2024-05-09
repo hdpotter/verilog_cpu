@@ -1,5 +1,40 @@
 module datapath(
     input clk
+
+`ifdef RVFI
+    `define NRET 1
+    `define ILEN 32
+
+    // instruction metadata
+    output [NRET        - 1 : 0] rvfi_valid,
+    output [NRET *   64 - 1 : 0] rvfi_order,
+    output [NRET * ILEN - 1 : 0] rvfi_insn,
+    output [NRET        - 1 : 0] rvfi_trap,
+    output [NRET        - 1 : 0] rvfi_halt,
+    output [NRET        - 1 : 0] rvfi_intr,
+    output [NRET * 2    - 1 : 0] rvfi_mode,
+    output [NRET * 2    - 1 : 0] rvfi_ixl,
+
+    // integer register read/write
+    output [NRET *    5 - 1 : 0] rvfi_rs1_addr,
+    output [NRET *    5 - 1 : 0] rvfi_rs2_addr,
+    output [NRET * XLEN - 1 : 0] rvfi_rs1_rdata,
+    output [NRET * XLEN - 1 : 0] rvfi_rs2_rdata,
+    output [NRET *    5 - 1 : 0] rvfi_rd_addr,
+    output [NRET * XLEN - 1 : 0] rvfi_rd_wdata,
+
+    // program counter
+    output [NRET * XLEN - 1 : 0] rvfi_pc_rdata,
+    output [NRET * XLEN - 1 : 0] rvfi_pc_wdata,
+
+    // memory access
+    output [NRET * XLEN   - 1 : 0] rvfi_mem_addr,
+    output [NRET * XLEN/8 - 1 : 0] rvfi_mem_rmask,
+    output [NRET * XLEN/8 - 1 : 0] rvfi_mem_wmask,
+    output [NRET * XLEN   - 1 : 0] rvfi_mem_rdata,
+    output [NRET * XLEN   - 1 : 0] rvfi_mem_wdata
+`endif
+
 );
 
 logic [31:0] pc;
@@ -63,6 +98,10 @@ wire [31:0] reg_in;
 
 wire write_reg = r_en | i_en | jal_en | jalr_en | lui_en | auipc_en;
 
+`ifdef RVSI
+logic [31:0] rd_out;
+`endif
+
 registers registers(
     .rs1_addr(rs1_addr),
     .rs2_addr(rs2_addr),
@@ -71,6 +110,9 @@ registers registers(
     .rd(reg_in),
     .rs1(rs1),
     .rs2(rs2),
+`ifdef RVSI
+    .rd_out(rd_out),
+`endif
     
     .write(write_reg),
     .clk(clk)
@@ -93,6 +135,11 @@ alu alu(
 
 wire mem_out;
 
+`ifdef RVSI
+logic rmask,
+logic wmask,
+`endif
+
 memory memory(
     .addr(alu_out),
     .value(rs2),
@@ -101,6 +148,11 @@ memory memory(
     .read(im_en),
     .write(s_en),
     .clk(clk),
+
+`ifdef RVSI
+    .rmask(rmask),
+    .wmask(wmask),
+`endif
 
     .data(mem_out)
 );
@@ -117,8 +169,14 @@ conditions conditions(
 always @(posedge clk) begin
     if((b_en & branch) | jal_en | jalr_en) begin
         pc <= alu_out;
+`ifdef RVFI
+        rvfi_pc_wdata <= alu_out;
+`endif
     end else begin
         pc <= pc + 4;
+`ifdef RVFI
+        rvfi_pc_wdata <= pc + 4;
+`endif
     end
 end
 
@@ -129,5 +187,36 @@ assign rd =
     lui_en ? imm_shift :
     auipc_en ? alu_out :
     0;
+
+`ifdef RVFI
+always @(posedge clk) begin
+    rvfi_valid <= 1;
+    rvfi_order <= rvfi_order + 1;
+    rvfi_insn <= instr;
+    rvfi_trap <= 0; //todo: traps
+    rvfi_halt <= 0; //todo: halt
+    rvfi_intr <= 0; //todo: traps
+    rvfi_mode <= 0;
+    rvfi_ixl <= 2'd1;
+
+    rvfi_rs1_addr <= rs1_addr;
+    rvfi_rs2_addr <= rs2_addr;
+    rvfi_rs1_rdata <= rs1;
+    rvfi_rs2_rdata <= rs2;
+    rvfi_rd_addr <= rd_addr;
+    rvfi_rd_wdata <= rd_out;
+
+    rvfi_pc_rdata <= pc;
+    // rvfi_pc_wdata written in pc always block
+
+    rvfi_mem_addr <= alu_out;
+    rvfi_mem_rmask <= rmask;
+    rvfi_mem_wmask <= wmask;
+    rvfi_mem_rdata <= mem_out;
+    rvfi_mem_wdata <= rs2;
+
+end
+`endif
+
 
 endmodule
