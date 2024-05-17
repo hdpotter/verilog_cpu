@@ -1,4 +1,9 @@
 
+`define RVFI
+
+`define NRET 1
+`define ILEN 32
+`define XLEN 32
 
 module memory(
     input [31:0] addr,
@@ -25,44 +30,44 @@ always @(posedge clk) begin
         case(funct3)
             3'd0: begin
                 data <= {{24{mem[addr][7]}}, mem[addr][7:0]};
-`ifdef RVSI
+`ifdef RVFI
                 rmask <= 4'b0001;
 `endif
             end
             3'd1: begin
                 data <= {{16{mem[addr][15]}}, mem[addr][15:0]};
-`ifdef RVSI
+`ifdef RVFI
                 rmask <= 4'b0011;
 `endif
             end
             3'd2: begin
                 data <= mem[addr];
-`ifdef RVSI
+`ifdef RVFI
                 rmask <= 4'b1111;
 `endif
             end
             3'd4: begin
                 data <= {24'd0, mem[addr][7:0]};
-`ifdef RVSI
+`ifdef RVFI
                 rmask <= 4'b0001;
 `endif
             end
             3'd5: begin
                 data <= {16'd0, mem[addr][15:0]};
-`ifdef RVSI
+`ifdef RVFI
                 rmask <= 4'b0011;
 `endif
             end
             default: begin
                 data <= 32'd0;
-`ifdef RVSI
+`ifdef RVFI
                 rmask <= 4'b0000;
 `endif
             end
         endcase
     end else begin
         data <= 32'd0;
-`ifdef RSVI
+`ifdef RVFI
         rmask <= 4'b0000;
 `endif
     end
@@ -71,30 +76,30 @@ always @(posedge clk) begin
         case(funct3)
             3'd0: begin
                 mem[addr][7:0] = value[7:0];
-`ifdef RVSI
+`ifdef RVFI
                 wmask <= 4'b0001;
 `endif
             end
             3'd1: begin
                 mem[addr][15:0] = value[15:0];
-`ifdef RVSI
+`ifdef RVFI
                 wmask <= 4'b0011;
 `endif
             end
             3'd2: begin
                 mem[addr] = data;
-`ifdef RVSI
+`ifdef RVFI
                 wmask <= 4'b1111;
 `endif
             end
-`ifdef RVSI
+`ifdef RVFI
             default: begin
                 wmask <= 4'b0000;
             end
 `endif
         endcase
     end 
-`ifdef RVSI
+`ifdef RVFI
     else begin
         wmask <= 4'b0000;
     end

@@ -33,10 +33,10 @@ assign jalr_en = instr[6:0] == 7'b1100111;
 assign lui_en = instr[6:0] == 7'b0110111;
 assign auipc_en = instr[6:0] == 7'b0010111;
 
-assign rd = instr[11:7];
+assign rd_addr = instr[11:7];
 assign funct3 = instr[14:12];
-assign rs1 = instr[19:15];
-assign rs2 = instr[24:20];
+assign rs1_addr = instr[19:15];
+assign rs2_addr = instr[24:20];
 assign funct7 = instr[31:25];
 
 

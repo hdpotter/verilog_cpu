@@ -1,8 +1,41 @@
 
+`define RVFI
+
+`define NRET 1
+`define ILEN 32
+`define XLEN 32
+
 module datapath (
 
 `ifdef RVFI
-    output rvfi_struct rvfi_out,
+    // instruction metadata
+    output logic [`NRET        - 1 : 0] rvfi_valid,
+    output logic [`NRET *   64 - 1 : 0] rvfi_order,
+    output logic [`NRET * `ILEN - 1 : 0] rvfi_insn,
+    output logic [`NRET        - 1 : 0] rvfi_trap,
+    output logic [`NRET        - 1 : 0] rvfi_halt,
+    output logic [`NRET        - 1 : 0] rvfi_intr,
+    output logic [`NRET * 2    - 1 : 0] rvfi_mode,
+    output logic [`NRET * 2    - 1 : 0] rvfi_ixl,
+
+    // integer register read/write
+    output logic [`NRET *    5 - 1 : 0] rvfi_rs1_addr,
+    output logic [`NRET *    5 - 1 : 0] rvfi_rs2_addr,
+    output logic [`NRET * `XLEN - 1 : 0] rvfi_rs1_rdata,
+    output logic [`NRET * `XLEN - 1 : 0] rvfi_rs2_rdata,
+    output logic [`NRET *    5 - 1 : 0] rvfi_rd_addr,
+    output logic [`NRET * `XLEN - 1 : 0] rvfi_rd_wdata,
+
+    // program counter
+    output logic [`NRET * `XLEN - 1 : 0] rvfi_pc_rdata,
+    output logic [`NRET * `XLEN - 1 : 0] rvfi_pc_wdata,
+
+    // memory access
+    output logic [`NRET * `XLEN   - 1 : 0] rvfi_mem_addr,
+    output logic [`NRET * `XLEN/8 - 1 : 0] rvfi_mem_rmask,
+    output logic [`NRET * `XLEN/8 - 1 : 0] rvfi_mem_wmask,
+    output logic [`NRET * `XLEN   - 1 : 0] rvfi_mem_rdata,
+    output logic [`NRET * `XLEN   - 1 : 0] rvfi_mem_wdata,
 `endif
 
     input clk
@@ -81,7 +114,7 @@ registers registers(
     .rd(reg_in),
     .rs1(rs1),
     .rs2(rs2),
-`ifdef RVSI
+`ifdef RVFI
     .rd_out(rd_out),
 `endif
     
@@ -104,7 +137,7 @@ alu alu(
     .rd(alu_out)
 );
 
-wire mem_out;
+wire [31:0] mem_out;
 
 `ifdef RVFI
 logic rmask;
@@ -133,7 +166,7 @@ wire branch;
 conditions conditions(
     .rs1(rs1),
     .rs2(rs2),
-    .func3(func3),
+    .funct3(funct3),
     .branch(branch)
 );
 
@@ -141,17 +174,17 @@ always @(posedge clk) begin
     if((b_en & branch) | jal_en | jalr_en) begin
         pc <= alu_out;
 `ifdef RVFI
-        rvfo_out.rvfi_pc_wdata <= alu_out;
+        rvfi_pc_wdata <= alu_out;
 `endif
     end else begin
         pc <= pc + 4;
 `ifdef RVFI
-        rvfi_out.rvfi_pc_wdata <= pc + 4;
+        rvfi_pc_wdata <= pc + 4;
 `endif
     end
 end
 
-assign rd =
+assign reg_in =
     r_en | i_en ? alu_out :
     im_en ? mem_out :
     jal_en | jalr_en ? pc + 4 :
@@ -161,30 +194,30 @@ assign rd =
 
 `ifdef RVFI
 always @(posedge clk) begin
-    rvfi_out.rvfi_valid <= 1;
-    rvfi_out.rvfi_order <= rvfi_out.rvfi_order + 1;
-    rvfi_out.rvfi_insn <= instr;
-    rvfi_out.rvfi_trap <= 0; //todo: traps
-    rvfi_out.rvfi_halt <= 0; //todo: halt
-    rvfi_out.rvfi_intr <= 0; //todo: traps
-    rvfi_out.rvfi_mode <= 0;
-    rvfi_out.rvfi_ixl <= 2'd1;
+    rvfi_valid <= 1;
+    rvfi_order <= rvfi_order + 1;
+    rvfi_insn <= instr;
+    rvfi_trap <= 0; //todo: traps
+    rvfi_halt <= 0; //todo: halt
+    rvfi_intr <= 0; //todo: traps
+    rvfi_mode <= 0;
+    rvfi_ixl <= 2'd1;
 
-    rvfi_out.rvfi_rs1_addr <= rs1_addr;
-    rvfi_out.rvfi_rs2_addr <= rs2_addr;
-    rvfi_out.rvfi_rs1_rdata <= rs1;
-    rvfi_out.rvfi_rs2_rdata <= rs2;
-    rvfi_out.rvfi_rd_addr <= rd_addr;
-    rvfi_out.rvfi_rd_wdata <= rd_out;
+    rvfi_rs1_addr <= rs1_addr;
+    rvfi_rs2_addr <= rs2_addr;
+    rvfi_rs1_rdata <= rs1;
+    rvfi_rs2_rdata <= rs2;
+    rvfi_rd_addr <= rd_addr;
+    rvfi_rd_wdata <= rd_out;
 
-    rvfi_out.rvfi_pc_rdata <= pc;
+    rvfi_pc_rdata <= pc;
     // rvfi_pc_wdata written in pc always block
 
-    rvfi_out.rvfi_mem_addr <= alu_out;
-    rvfi_out.rvfi_mem_rmask <= rmask;
-    rvfi_out.rvfi_mem_wmask <= wmask;
-    rvfi_out.rvfi_mem_rdata <= mem_out;
-    rvfi_out.rvfi_mem_wdata <= rs2;
+    rvfi_mem_addr <= alu_out;
+    rvfi_mem_rmask <= rmask;
+    rvfi_mem_wmask <= wmask;
+    rvfi_mem_rdata <= mem_out;
+    rvfi_mem_wdata <= rs2;
 
 end
 `endif
