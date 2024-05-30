@@ -1,10 +1,11 @@
 
-`define RVFI
+// `define RVFI
 
 `define NRET 1
 `define ILEN 32
 `define XLEN 32
 
+`ifdef RVFI
 
 module rvfi_wrapper(
     // instruction metadata
@@ -69,3 +70,5 @@ datapath ourcore(
 );
 
 endmodule
+
+`endif

@@ -1,4 +1,4 @@
-module decoder(
+module decoder (
     input [31:0] instr,
 
     output [4:0] rd_addr,
@@ -42,7 +42,7 @@ assign funct7 = instr[31:25];
 
 wire imm_sign = instr[31];
 
-wire [11:0] imm_is = i_en ? instr[31:25] : {instr[31:25], instr[11:7]};
+wire [11:0] imm_is = i_en ? instr[31:20] : {instr[31:25], instr[11:7]};
 wire [12:1] imm_b = {instr[31], instr[7], instr[30:25], instr[11:8]};
 wire [31:12] imm_u = instr[31:12];
 wire [20:1] imm_j = {instr[31], instr[19:12], instr[20], instr[30:21]};

@@ -1,5 +1,5 @@
 
-`define RVFI
+// `define RVFI
 
 `define NRET 1
 `define ILEN 32
