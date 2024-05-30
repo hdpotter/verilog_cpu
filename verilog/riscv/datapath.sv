@@ -130,6 +130,7 @@ wire [31:0] alu_in2 = i_en | s_en | b_en | jal_en | jalr_en | lui_en | auipc_en 
 wire [31:0] alu_out;
 
 alu alu(
+    .i_en(i_en),
     .funct3(funct3),
     .funct7(funct7),
     .rs1(alu_in1),

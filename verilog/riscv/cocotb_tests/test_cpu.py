@@ -37,34 +37,13 @@ def print_first_regs(dut, n):
     for i in range(n):
         print("  x" + str(i) + ": " + str(dut.registers.mem[i].value))
 
-
-async def clock(dut):
-    await Timer(2, units="ns")
-    dut.clk.value = 1
-    await Timer(2, units="ns")
-    dut.clk.value = 0
-    await Timer(2, units="ns")
+def print_first_prog_mem(dut, n):
+    print("program memory:")
+    for i in range(n):
+        print("  prog[" + str(i) + "]: " + str(dut.program_memory.memory[i].value))
 
 
-@cocotb.test()
-async def test_add(dut):
-
-    dut.clk.value = 0
-
-    i = 0
-    i = instr(dut, i, "addi x1 x0 18")
-    i = instr(dut, i, "addi x2 x0 67")
-    i = instr(dut, i, "add x3 x1 x2")
-
-
-    dut.pc.value = 0
-    await Timer(2, units="ns")
-
-
-    await clock(dut)
-
-    print_first_regs(dut, 4)
-
+def print_wires(dut):
     print("pc: " + str(dut.pc.value))
     print("instr: " + str(dut.instr.value))
     print("i_en: " + str(dut.decoder.i_en.value))
@@ -85,20 +64,48 @@ async def test_add(dut):
 
     print("reg_in: " + str(dut.reg_in.value))
 
+async def clock(dut):
+    await Timer(2, units="ns")
+    dut.clk.value = 1
+    await Timer(2, units="ns")
+    dut.clk.value = 0
+    await Timer(2, units="ns")
+
+
+@cocotb.test()
+async def test_add(dut):
+    dut.clk.value = 0
+
+    i = 0
+    i = instr(dut, i, "addi x1 x0 18")
+    i = instr(dut, i, "addi x2 x0 67")
+    i = instr(dut, i, "add x3 x1 x2")
+
+
+    dut.pc.value = 0
+    await Timer(2, units="ns")
+
+
+    await clock(dut)
+    await clock(dut)
     await clock(dut)
 
-    print_first_regs(dut, 4)
+    assert dut.registers.mem[3] == 18+67, "add result incorrect"
+
+@cocotb.test()
+async def test_sub(dut):
+    dut.clk.value = 0
+
+    i = 0
+    i = instr(dut, i, "addi x1 x0 18")
+    i = instr(dut, i, "addi x2 x0 7")
+    i = instr(dut, i, "sub x3 x1 x2")
+
+    dut.pc.value = 0
+    await Timer(2, units="ns")
 
     await clock(dut)
+    await clock(dut)
+    await clock(dut)
 
-    print_first_regs(dut, 4)
-
-
-
-
-
-
-
-    assert dut.registers.mem[3] == 18+67, "adder result incorrect"
-
-
+    assert dut.registers.mem[3] == 18 - 7, "sub result incorrect"
