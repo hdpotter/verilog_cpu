@@ -115,3 +115,33 @@ async def test_sra(dut):
     await cpu.execute()
 
     assert cpu.register(3).signed_integer == -4, "-8 >> 1 (sra) result incorrect"
+
+@cocotb.test()
+async def test_slt(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 -11")
+    cpu.instr("addi x2 x0 -15")
+    # cpu.instr("slt x3 x1 x2")
+    cpu.instr_raw(0x0020a1b3) # error in riscv_assembler
+    # cpu.instr("slt x4 x2 x1")
+    cpu.instr_raw(0x00112233)
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 0
+    assert cpu.register(4) == 1
+
+@cocotb.test()
+async def test_sltu(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 11")
+    cpu.instr("addi x2 x0 15")
+    cpu.instr("sltu x3 x1 x2")
+    cpu.instr("sltu x4 x2 x1")
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 1
+    assert cpu.register(4) == 0

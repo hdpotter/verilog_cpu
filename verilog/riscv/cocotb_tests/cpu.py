@@ -22,7 +22,10 @@ class CPU:
         self.instr_count = 0
     
     def instr(self, s):
-        self.dut.program_memory.memory[self.instr_count].value = assemble(s)
+        self.instr_raw(assemble(s))
+
+    def instr_raw(self, s):
+        self.dut.program_memory.memory[self.instr_count].value = s
         self.instr_count += 1
     
     async def setup_execution(self):
