@@ -25,6 +25,11 @@ class CPU:
         self.dut.program_memory.memory[self.instr_count].value = assemble(s)
         self.instr_count += 1
     
+    async def setup_execution(self):
+        self.dut.clk.value = 0
+        self.dut.pc.value = 0
+        await Timer(2, units="ns")
+
     async def clock(self):
         await Timer(2, units="ns")
         self.dut.clk.value = 1
@@ -33,9 +38,7 @@ class CPU:
         await Timer(2, units="ns")
 
     async def execute(self):
-        self.dut.clk.value = 0
-        self.dut.pc.value = 0
-        await Timer(2, units="ns")
+        await self.setup_execution()
 
         for i in range(self.instr_count):
             await self.clock()
@@ -54,7 +57,7 @@ class CPU:
         for i in range(self.instr_count):
             print("  " + str(self.dut.program_memory.memory[i].value))
     
-    def print_wires(self, dut):
+    def print_wires(self):
         print("pc: " + str(self.dut.pc.value))
         print("instr: " + str(self.dut.instr.value))
         print("i_en: " + str(self.dut.decoder.i_en.value))

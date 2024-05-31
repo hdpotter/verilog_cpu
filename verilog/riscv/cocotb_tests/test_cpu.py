@@ -114,6 +114,4 @@ async def test_sra(dut):
 
     await cpu.execute()
 
-    cpu.print_first_regs(4)
-
-    assert cpu.register(3) == -4, "-8 >> 1 (sra) result incorrect"
+    assert cpu.register(3).signed_integer == -4, "-8 >> 1 (sra) result incorrect"
