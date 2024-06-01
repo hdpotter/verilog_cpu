@@ -145,3 +145,105 @@ async def test_sltu(dut):
 
     assert cpu.register(3) == 1
     assert cpu.register(4) == 0
+
+@cocotb.test()
+async def test_addi(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 11")
+    cpu.instr("addi x2 x1 15")
+
+    await cpu.execute()
+
+    assert cpu.register(2) == 11 + 15
+
+@cocotb.test()
+async def test_xori(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 1")
+    cpu.instr("addi x2 x0 0")
+    cpu.instr("xori x3 x1 1")
+    cpu.instr("xori x4 x1 0")
+    cpu.instr("xori x5 x2 1")
+    cpu.instr("xori x6 x2 0")
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 0
+    assert cpu.register(4) == 1
+    assert cpu.register(5) == 1
+    assert cpu.register(6) == 0
+
+@cocotb.test()
+async def test_ori(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 1")
+    cpu.instr("addi x2 x0 0")
+    cpu.instr("ori x3 x1 1")
+    cpu.instr("ori x4 x1 0")
+    cpu.instr("ori x5 x2 1")
+    cpu.instr("ori x6 x2 0")
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 1
+    assert cpu.register(4) == 1
+    assert cpu.register(5) == 1
+    assert cpu.register(6) == 0
+
+@cocotb.test()
+async def test_xand(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 1")
+    cpu.instr("addi x2 x0 0")
+    cpu.instr("andi x3 x1 1")
+    cpu.instr("andi x4 x1 0")
+    cpu.instr("andi x5 x2 1")
+    cpu.instr("andi x6 x2 0")
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 1
+    assert cpu.register(4) == 0
+    assert cpu.register(5) == 0
+    assert cpu.register(6) == 0
+
+@cocotb.test()
+async def test_slli(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 7")
+    cpu.instr("slli x3 x1 2")
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 16 + 8 + 4
+
+@cocotb.test()
+async def test_srli(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 15")
+    # cpu.instr("srli x3 x1 2")
+    cpu.instr_raw(0x0020d193)
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 2 + 1
+
+@cocotb.test()
+async def test_srai(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 -16")
+    # cpu.instr("srai x3 x1 2")
+    cpu.instr_raw(0x4020d193)
+
+    await cpu.execute()
+
+    cpu.print_first_regs(4)
+
+    assert cpu.register(3).signed_integer == -4

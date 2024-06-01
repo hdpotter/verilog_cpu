@@ -16,7 +16,7 @@ module alu(
                 {3'h7, 7'h0}: rd = rs1 & rs2; //and
                 {3'h1, 7'h0}: rd = rs1 << rs2; //sll
                 {3'h5, 7'h0}: rd = rs1 >> rs2; //srl
-                {3'h5, 7'h20}: rd = $signed(rs1) >>> $signed(rs2); //sra
+                {3'h5, 7'h20}: rd = $signed(rs1) >>> rs2; //sra
                 {3'h2, 7'h0}: rd = $signed(rs1) < $signed(rs2) ? 32'd1 : 32'd0; //slt
                 {3'h3, 7'h0}: rd = $unsigned(rs1) < $unsigned(rs2) ? 32'd1 : 32'd0; //sltu
                 default: rd = {31{1'b0}};
@@ -28,7 +28,7 @@ module alu(
                 {3'h6}: rd = rs1 | rs2; //ori
                 {3'h7}: rd = rs1 & rs2; //addi
                 {3'h1}: rd = rs1 << rs2[4:0]; //slli
-                {3'h5}: rd = rs2[11:5] == 7'd0 ? rs1 >> rs2 : rs1 >>> rs2; //srli
+                {3'h5}: rd = rs2[11:5] == 7'h0 ? rs1 >> rs2[4:0] : $signed($signed(rs1) >>> rs2[4:0]); //srli, srai
                 {3'h2}: rd = $signed(rs1) < $signed(rs2) ? 32'd1 : 32'd0; //slti
                 {3'h3}: rd = $unsigned(rs1) < $unsigned(rs2) ? 32'd1 : 32'd0; //sltiu
                 default: rd = {31{1'b0}};
