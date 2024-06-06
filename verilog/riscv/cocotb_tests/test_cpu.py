@@ -11,7 +11,7 @@ async def test_add(dut):
 
     await cpu.execute()
 
-    assert cpu.register(3) == 18 + 67, "add result incorrect"
+    assert cpu.register(3) == 18 + 67
 
 
 @cocotb.test()
@@ -24,7 +24,7 @@ async def test_sub(dut):
 
     await cpu.execute()
 
-    assert cpu.register(3) == 18 - 7, "sub result incorrect"
+    assert cpu.register(3) == 18 - 7
 
 @cocotb.test()
 async def test_xor(dut):
@@ -39,10 +39,10 @@ async def test_xor(dut):
 
     await cpu.execute()
 
-    assert cpu.register(3) == 0, "0 xor 0 result incorrect"
-    assert cpu.register(4) == 1, "0 xor 1 result incorrect"
-    assert cpu.register(5) == 1, "1 xor 0 result incorrect"
-    assert cpu.register(6) == 0, "1 xor 1 result incorrect"
+    assert cpu.register(3) == 0
+    assert cpu.register(4) == 1
+    assert cpu.register(5) == 1
+    assert cpu.register(6) == 0
 
 @cocotb.test()
 async def test_or(dut):
@@ -57,10 +57,10 @@ async def test_or(dut):
 
     await cpu.execute()
 
-    assert cpu.register(3) == 0, "0 or 0 result incorrect"
-    assert cpu.register(4) == 1, "0 or 1 result incorrect"
-    assert cpu.register(5) == 1, "1 or 0 result incorrect"
-    assert cpu.register(6) == 1, "1 or 1 result incorrect"
+    assert cpu.register(3) == 0
+    assert cpu.register(4) == 1
+    assert cpu.register(5) == 1
+    assert cpu.register(6) == 1
 
 @cocotb.test()
 async def test_and(dut):
@@ -75,10 +75,10 @@ async def test_and(dut):
 
     await cpu.execute()
 
-    assert cpu.register(3) == 0, "0 and 0 result incorrect"
-    assert cpu.register(4) == 0, "0 and 1 result incorrect"
-    assert cpu.register(5) == 0, "1 and 0 result incorrect"
-    assert cpu.register(6) == 1, "1 and 1 result incorrect"
+    assert cpu.register(3) == 0
+    assert cpu.register(4) == 0
+    assert cpu.register(5) == 0
+    assert cpu.register(6) == 1
 
 @cocotb.test()
 async def test_sll(dut):
@@ -90,7 +90,7 @@ async def test_sll(dut):
 
     await cpu.execute()
 
-    assert cpu.register(3) == 32 + 16 + 8, "7 << 3 (sll) result incorrect"
+    assert cpu.register(3) == 32 + 16 + 8
 
 @cocotb.test()
 async def test_srl(dut):
@@ -102,7 +102,7 @@ async def test_srl(dut):
 
     await cpu.execute()
 
-    assert cpu.register(3) == 7, "7 >> 3 (srl) result incorrect"
+    assert cpu.register(3) == 7
 
 @cocotb.test()
 async def test_sra(dut):
@@ -114,7 +114,7 @@ async def test_sra(dut):
 
     await cpu.execute()
 
-    assert cpu.register(3).signed_integer == -4, "-8 >> 1 (sra) result incorrect"
+    assert cpu.register(3).signed_integer == -4
 
 @cocotb.test()
 async def test_slt(dut):
@@ -244,6 +244,32 @@ async def test_srai(dut):
 
     await cpu.execute()
 
-    cpu.print_first_regs(4)
-
     assert cpu.register(3).signed_integer == -4
+
+@cocotb.test()
+async def test_slti(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 -4")
+    cpu.instr("slti x2 x1 -8")
+    cpu.instr("slti x3 x1 5")
+
+    await cpu.execute()
+
+    assert cpu.register(2) == 0
+    assert cpu.register(3) == 1
+
+@cocotb.test()
+async def test_sltiu(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 48")
+    cpu.instr("sltiu x2 x1 5")
+    cpu.instr("sltiu x3 x1 93")
+
+    await cpu.execute()
+
+    assert cpu.register(2) == 0
+    assert cpu.register(3) == 1
+
+
