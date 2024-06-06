@@ -272,4 +272,36 @@ async def test_sltiu(dut):
     assert cpu.register(2) == 0
     assert cpu.register(3) == 1
 
+@cocotb.test()
+async def test_sb(dut):
+    cpu = CPU(dut)
 
+    cpu.instr("addi x1 x0 5")
+    cpu.instr("addi x2 x0 1073741819")
+    # cpu.instr("sb x2 1(x1)")
+    cpu.instr_raw(0x002080a3)
+    # cpu.instr("sb x2 -1(x1)")
+    cpu.instr_raw(0xfe208fa3)
+
+    await cpu.execute()
+
+    assert cpu.memory(4) == 251
+    assert cpu.memory(6) == 251
+
+@cocotb.test()
+async def test_sh(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+    cpu.instr("addi x2 x0 1073741819")
+    # cpu.instr("sb x2 1(x1)")
+    cpu.instr_raw(0x002090a3)
+    # cpu.instr("sb x2 -1(x1)")
+    cpu.instr_raw(0xfe209fa3)
+
+    await cpu.execute()
+
+    assert cpu.memory(4) == 251
+    assert cpu.memory(5) == 255
+    assert cpu.memory(6) == 251
+    assert cpu.memory(7) == 255

@@ -146,7 +146,8 @@ logic wmask;
 `endif
 
 memory memory(
-    .addr(alu_out),
+    .addr(rs1),
+    .offset(imm),
     .value(rs2),
     .funct3(funct3),
 

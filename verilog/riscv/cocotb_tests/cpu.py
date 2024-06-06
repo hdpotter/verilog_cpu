@@ -49,11 +49,21 @@ class CPU:
     def register(self, n):
         return self.dut.registers.mem[n].value
 
-
     def print_first_regs(self, n):
         print("registers:")
         for i in range(n):
             print("  x" + str(i) + ": " + str(self.dut.registers.mem[i].value))
+
+    def memory(self, n):
+        return self.dut.memory.mem[n].value
+    
+    def set_memory(self, n, value):
+        self.dut.memory.mem[n] = value
+
+    def print_first_memory(self, n):
+        print("memory:")
+        for i in range(n):
+            print("  mem[" + str(i) + "]: " + str(self.dut.memory.mem[i].value))
     
     def print_program(self):
         print("program:")
@@ -80,4 +90,8 @@ class CPU:
         print("alu_out: " + str(self.dut.alu_out.value))
 
         print("reg_in: " + str(self.dut.reg_in.value))
+
+        print("memory.addr: " + str(self.dut.memory.addr.value))
+        print("memory.offset: " + str(self.dut.memory.offset.value))
+        print("memory.full_addr: " + str(self.dut.memory.full_addr.value))
     
