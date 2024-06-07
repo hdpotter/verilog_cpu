@@ -40,12 +40,13 @@ class CPU:
     async def wait(self, n):
         await Timer(2, units="ns")
 
-    async def clock(self):
-        await self.wait(2)
-        self.dut.clk.value = 1
-        await self.wait(2)
-        self.dut.clk.value = 0
-        await self.wait(2)
+    async def clock(self, n=1):
+        for i in range(n):
+            await self.wait(2)
+            self.dut.clk.value = 1
+            await self.wait(2)
+            self.dut.clk.value = 0
+            await self.wait(2)
 
     async def execute(self):
         await self.setup_execution()
