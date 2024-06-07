@@ -31,14 +31,17 @@ class CPU:
     async def setup_execution(self):
         self.dut.clk.value = 0
         self.dut.pc.value = 0
+        await self.wait(2)
+
+    async def wait(self, n):
         await Timer(2, units="ns")
 
     async def clock(self):
-        await Timer(2, units="ns")
+        await self.wait(2)
         self.dut.clk.value = 1
-        await Timer(2, units="ns")
+        await self.wait(2)
         self.dut.clk.value = 0
-        await Timer(2, units="ns")
+        await self.wait(2)
 
     async def execute(self):
         await self.setup_execution()
@@ -59,6 +62,11 @@ class CPU:
     
     def set_memory(self, n, value):
         self.dut.memory.mem[n] = value
+
+    async def reset_first_memory(self, n):
+        for i in range(n):
+            self.set_memory(i, cocotb.types.LogicArray("xxxxxxxx"))
+        await self.wait(2)
 
     def print_first_memory(self, n):
         print("memory:")
