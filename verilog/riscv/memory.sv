@@ -90,7 +90,7 @@ always @(posedge clk) begin
 `endif
             end
             3'h2: begin
-                {mem[full_addr+3], mem[full_addr+2], mem[full_addr+1], mem[full_addr]} = data;
+                {mem[full_addr+3], mem[full_addr+2], mem[full_addr+1], mem[full_addr]} = value;
 `ifdef RVFI
                 wmask <= 4'b1111;
 `endif
