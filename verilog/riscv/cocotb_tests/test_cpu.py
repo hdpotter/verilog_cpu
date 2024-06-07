@@ -353,3 +353,32 @@ async def test_sw(dut):
     assert cpu.memory(10) == 230
     assert cpu.memory(11) == 41
     assert cpu.memory(12) == 169
+
+@cocotb.test()
+async def test_lb(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+
+    cpu.instr("addi x2 x0 169") # most significant byte 0x89
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 41") # 0x29
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 230") # 0xe6
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 229") # least significant bit 0xe5
+    
+    # cpu.instr("sw x2 -1(x1)")
+    cpu.instr_raw(0xfe20afa3)
+    # cpu.instr("sw x2 4(x1)")
+    cpu.instr_raw(0x0020a223)
+
+    # cpu.instr("lb x3 -1(x1)")
+    cpu.instr_raw(0xfff08183)
+    # cpu.instr("lb x4 4(x1)")
+    cpu.instr_raw(0x00408203)
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 229 + 255*256 + 255*256*256 + 255*256*256*256 # result will be sign-extended
+    assert cpu.register(4) == 229 + 255*256 + 255*256*256 + 255*256*256*256

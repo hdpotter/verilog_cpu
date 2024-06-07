@@ -99,6 +99,7 @@ class CPU:
 
         print("rs1_addr: " + str(self.dut.rs1_addr.value))
 
+        print("imm_is: " + str(self.dut.decoder.imm_is.value))
         print("immediate: " + str(self.dut.imm.value))
 
         print("funct3: " + str(self.dut.funct3.value))
@@ -112,9 +113,12 @@ class CPU:
         print("alu_in2: " + str(self.dut.alu_in2.value))
         print("alu_out: " + str(self.dut.alu_out.value))
 
+        print("mem_out: " + str(self.dut.mem_out.value))
         print("reg_in: " + str(self.dut.reg_in.value))
 
         print("memory.addr: " + str(self.dut.memory.addr.value))
         print("memory.offset: " + str(self.dut.memory.offset.value))
         print("memory.full_addr: " + str(self.dut.memory.full_addr.value))
+        print("memory.read: " + str(self.dut.memory.read.value))
+        print("memory.data: " + str(self.dut.memory.data.value))
     
