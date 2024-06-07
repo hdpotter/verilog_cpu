@@ -277,7 +277,15 @@ async def test_sb(dut):
     cpu = CPU(dut)
 
     cpu.instr("addi x1 x0 5")
-    cpu.instr("addi x2 x0 1073741819")
+
+    cpu.instr("addi x2 x0 169") # most significant byte 0x89
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x0 41") # 0x29
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x0 230") # 0xe6
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x0 229") # least significant bit 0xe5
+
     # cpu.instr("sb x2 1(x1)")
     cpu.instr_raw(0x002080a3)
     # cpu.instr("sb x2 -1(x1)")
@@ -285,23 +293,63 @@ async def test_sb(dut):
 
     await cpu.execute()
 
-    assert cpu.memory(4) == 251
-    assert cpu.memory(6) == 251
+    assert cpu.memory(4) == 229
+    assert cpu.memory(6) == 229
 
 @cocotb.test()
 async def test_sh(dut):
     cpu = CPU(dut)
 
     cpu.instr("addi x1 x0 5")
-    cpu.instr("addi x2 x0 1073741819")
-    # cpu.instr("sb x2 1(x1)")
-    cpu.instr_raw(0x002090a3)
-    # cpu.instr("sb x2 -1(x1)")
+
+    cpu.instr("addi x2 x0 169") # most significant byte 0x89
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 41") # 0x29
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 230") # 0xe6
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 229") # least significant bit 0xe5
+
+    # cpu.instr("sh x2 -1(x1)")
     cpu.instr_raw(0xfe209fa3)
+    # cpu.instr("sh x2 1(x1)")
+    cpu.instr_raw(0x002090a3)
 
     await cpu.execute()
 
-    assert cpu.memory(4) == 251
-    assert cpu.memory(5) == 255
-    assert cpu.memory(6) == 251
-    assert cpu.memory(7) == 255
+    assert cpu.memory(4) == 229
+    assert cpu.memory(5) == 230
+    assert cpu.memory(6) == 229
+    assert cpu.memory(7) == 230
+
+@cocotb.test()
+async def test_sw(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+
+    cpu.instr("addi x2 x0 169") # most significant byte 0x89
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 41") # 0x29
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 230") # 0xe6
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 229") # least significant bit 0xe5
+
+
+    # cpu.instr("sw x2 -1(x1)")
+    cpu.instr_raw(0xfe20afa3)
+    # cpu.instr("sw x2 4(x1)")
+    cpu.instr_raw(0x0020a223)
+
+    await cpu.execute()
+
+    assert cpu.memory(4) == 229
+    assert cpu.memory(5) == 230
+    assert cpu.memory(6) == 41
+    assert cpu.memory(7) == 169
+
+    assert cpu.memory(9) == 229
+    assert cpu.memory(10) == 230
+    assert cpu.memory(11) == 41
+    assert cpu.memory(12) == 169
