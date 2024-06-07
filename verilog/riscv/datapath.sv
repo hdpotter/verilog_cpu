@@ -100,7 +100,7 @@ wire [31:0] rs1;
 wire [31:0] rs2;
 wire [31:0] reg_in;
 
-wire write_reg = r_en | i_en | jal_en | jalr_en | lui_en | auipc_en;
+wire write_reg = r_en | i_en | im_en | jal_en | jalr_en | lui_en | auipc_en;
 
 `ifdef RVFI
 logic [31:0] rd_out;

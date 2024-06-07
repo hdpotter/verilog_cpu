@@ -28,7 +28,7 @@ parameter MEMSIZE = 64;
 
 logic [7:0] mem [MEMSIZE-1:0];
 
-always @(posedge clk) begin
+always @(*) begin
     if(read) begin
         case(funct3)
             3'h0: begin
