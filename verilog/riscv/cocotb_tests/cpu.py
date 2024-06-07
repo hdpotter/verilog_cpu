@@ -31,6 +31,10 @@ class CPU:
     async def setup_execution(self):
         self.dut.clk.value = 0
         self.dut.pc.value = 0
+
+        await self.reset_first_memory(16)
+        await self.reset_regs()
+
         await self.wait(2)
 
     async def wait(self, n):
@@ -56,6 +60,11 @@ class CPU:
         print("registers:")
         for i in range(n):
             print("  x" + str(i) + ": " + str(self.dut.registers.mem[i].value))
+
+    async def reset_regs(self):
+        for i in range(1, 32):
+            self.dut.registers.mem[i].value = cocotb.types.LogicArray("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
 
     def memory(self, n):
         return self.dut.memory.mem[n].value
@@ -93,6 +102,11 @@ class CPU:
 
         print("funct3: " + str(self.dut.funct3.value))
         print("funct7: " + str(self.dut.funct7.value))
+
+        print("rs1: " + str(self.dut.rs1.value))
+        print("rs2: " + str(self.dut.rs2.value))
+
+
         print("alu_in1: " + str(self.dut.alu_in1.value))
         print("alu_in2: " + str(self.dut.alu_in2.value))
         print("alu_out: " + str(self.dut.alu_out.value))
