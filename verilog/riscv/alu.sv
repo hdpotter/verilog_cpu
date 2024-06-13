@@ -1,5 +1,6 @@
 module alu(
     input i_en,
+    input b_en,
     input [2:0] funct3,
     input [6:0] funct7,
     input [31:0] rs1,
@@ -7,7 +8,7 @@ module alu(
     output logic [31:0] rd
 );
     always @(*) begin
-        if(!i_en) begin
+        if(!i_en && !b_en) begin
             case ({funct3, funct7})
                 {3'h0, 7'h0}: rd = rs1 + rs2; //add
                 {3'h0, 7'h20}: rd = rs1 - rs2; //sub
@@ -21,7 +22,7 @@ module alu(
                 {3'h3, 7'h0}: rd = $unsigned(rs1) < $unsigned(rs2) ? 32'd1 : 32'd0; //sltu
                 default: rd = {31{1'b0}};
             endcase
-        end else begin
+        end else if(i_en && !b_en) begin
             case(funct3)
                 {3'h0}: rd = rs1 + rs2; //addi
                 {3'h4}: rd = rs1 ^ rs2; //xori
@@ -33,6 +34,8 @@ module alu(
                 {3'h3}: rd = $unsigned(rs1) < $unsigned(rs2) ? 32'd1 : 32'd0; //sltiu
                 default: rd = {31{1'b0}};
             endcase
+        end else if(b_en) begin
+            rd = rs1 + rs2; //add immediate to pc
         end
     end
 

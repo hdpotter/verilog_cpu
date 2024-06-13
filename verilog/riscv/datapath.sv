@@ -131,6 +131,7 @@ wire [31:0] alu_out;
 
 alu alu(
     .i_en(i_en),
+    .b_en(b_en),
     .funct3(funct3),
     .funct7(funct7),
     .rs1(alu_in1),
