@@ -360,7 +360,7 @@ async def test_lb(dut):
 
     cpu.instr("addi x1 x0 5")
 
-    cpu.instr("addi x2 x0 169") # most significant byte 0x89
+    cpu.instr("addi x2 x0 137") # most significant byte 0x89
     cpu.instr("slli x2 x2 8")
     cpu.instr("addi x2 x2 41") # 0x29
     cpu.instr("slli x2 x2 8")
@@ -380,5 +380,121 @@ async def test_lb(dut):
 
     await cpu.execute()
 
-    assert cpu.register(3) == 229 + 255*256 + 255*256*256 + 255*256*256*256 # result will be sign-extended
-    assert cpu.register(4) == 229 + 255*256 + 255*256*256 + 255*256*256*256
+    assert cpu.register(3) == 0xffffffe5 # result will be sign-extended
+    assert cpu.register(4) == 0xffffffe5
+
+@cocotb.test()
+async def test_lh(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+
+    cpu.instr("addi x2 x0 137") # most significant byte 0x89
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 41") # 0x29
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 230") # 0xe6
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 229") # least significant bit 0xe5
+
+    # cpu.instr("sw x2 -1(x1)")
+    cpu.instr_raw(0xfe20afa3)
+    # cpu.instr("sw x2 4(x1)")
+    cpu.instr_raw(0x0020a223)
+
+    # cpu.instr("lh x3 -1(x1)")
+    cpu.instr_raw(0xfff09183)
+    # cpu.instr("lh x4 4(x1)")
+    cpu.instr_raw(0x00409203)
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 0xffffe6e5
+    assert cpu.register(4) == 0xffffe6e5
+
+@cocotb.test()
+async def test_lw(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+
+    cpu.instr("addi x2 x0 137") # most significant byte 0x89
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 41") # 0x29
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 230") # 0xe6
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 229") # least significant bit 0xe5
+
+    # cpu.instr("sw x2 -1(x1)")
+    cpu.instr_raw(0xfe20afa3)
+    # cpu.instr("sw x2 4(x1)")
+    cpu.instr_raw(0x0020a223)
+
+    # cpu.instr("lw x3 -1(x1)")
+    cpu.instr_raw(0xfff0a183)
+    # cpu.instr("lw x4 4(x1)")
+    cpu.instr_raw(0x0040a203)
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 0x8929e6e5
+    assert cpu.register(4) == 0x8929e6e5
+
+@cocotb.test()
+async def test_lbu(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+
+    cpu.instr("addi x2 x0 137") # most significant byte 0x89
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 41") # 0x29
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 230") # 0xe6
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 229") # least significant bit 0xe5
+    
+    # cpu.instr("sw x2 -1(x1)")
+    cpu.instr_raw(0xfe20afa3)
+    # cpu.instr("sw x2 4(x1)")
+    cpu.instr_raw(0x0020a223)
+
+    # cpu.instr("lbu x3 -1(x1)")
+    cpu.instr_raw(0xfff0c183)
+    # cpu.instr("lb x4 4(x1)")
+    cpu.instr_raw(0x0040c203)
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 0x000000e5 # result will be zero-extended
+    assert cpu.register(4) == 0x000000e5
+
+@cocotb.test()
+async def test_lhu(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+
+    cpu.instr("addi x2 x0 137") # most significant byte 0x89
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 41") # 0x29
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 230") # 0xe6
+    cpu.instr("slli x2 x2 8")
+    cpu.instr("addi x2 x2 229") # least significant bit 0xe5
+
+    # cpu.instr("sw x2 -1(x1)")
+    cpu.instr_raw(0xfe20afa3)
+    # cpu.instr("sw x2 4(x1)")
+    cpu.instr_raw(0x0020a223)
+
+    # cpu.instr("lhu x3 -1(x1)")
+    cpu.instr_raw(0xfff0d183)
+    # cpu.instr("lhu x4 4(x1)")
+    cpu.instr_raw(0x0040d203)
+
+    await cpu.execute()
+
+    assert cpu.register(3) == 0x0000e6e5
+    assert cpu.register(4) == 0x0000e6e5
