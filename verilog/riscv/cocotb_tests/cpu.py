@@ -1,6 +1,8 @@
 import cocotb
 from cocotb.triggers import Timer
 from riscv_assembler.convert import AssemblyConverter
+import math
+
 
 def bitstring_to_int(bitstring: str) -> int:
     multiplier = 1
@@ -48,11 +50,22 @@ class CPU:
             self.dut.clk.value = 0
             await self.wait(2)
 
-    async def execute(self):
+    async def execute(self, n=64, trace=False):
         await self.setup_execution()
 
-        for i in range(self.instr_count):
+        breakout = False
+        for i in range(n):
+            if trace:
+                print("pc_" + str(i).ljust(math.ceil(math.log(n, 10))) + ": " + str(int(self.dut.pc.value.integer/4)))
+
+            if self.dut.pc.value == 4*self.instr_count: # reached end of instructions
+                breakout = True
+                break
+
             await self.clock()
+        
+        if not breakout:
+            assert False, "executed " + str(n) + " cycles without reaching end of instruction stream"
 
     def register(self, n):
         return self.dut.registers.mem[n].value

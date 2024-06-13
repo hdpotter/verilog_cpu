@@ -498,3 +498,146 @@ async def test_lhu(dut):
 
     assert cpu.register(3) == 0x0000e6e5
     assert cpu.register(4) == 0x0000e6e5
+
+@cocotb.test()
+async def test_beq(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+    cpu.instr("addi x2 x0 5")
+    cpu.instr("addi x3 x0 6")
+
+    cpu.instr("addi x4 x0 0") # write to these to measure if we skip
+    cpu.instr("addi x5 x0 0")
+
+    # cpu.instr("beq x1 x2 8") # skip next instruction if x1 and x2 are equal (which they are)
+    cpu.instr_raw(0x00208463)
+    cpu.instr("addi x4 x0 1")
+    # cpu.instr("beq x1 x3 8") # skip next instruction if x1 and x3 are equal (which they aren't)
+    cpu.instr_raw(0x00308463)
+    cpu.instr("addi x5 x0 1")
+
+    await cpu.execute()
+
+    assert cpu.register(4) == 0
+    assert cpu.register(5) == 1
+
+@cocotb.test()
+async def test_bne(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+    cpu.instr("addi x2 x0 5")
+    cpu.instr("addi x3 x0 6")
+
+    cpu.instr("addi x4 x0 0") # write to these to measure if we skip
+    cpu.instr("addi x5 x0 0")
+
+    # cpu.instr("bne x1 x2 8") # skip next instruction if x1 and x2 are unequal (which they aren't)
+    cpu.instr_raw(0x00209463)
+    cpu.instr("addi x4 x0 1")
+    # cpu.instr("bne x1 x3 8") # skip next instruction if x1 and x3 are unequal (which they are)
+
+    cpu.instr_raw(0x00309463)
+    cpu.instr("addi x5 x0 1")
+
+    await cpu.execute()
+
+    assert cpu.register(4) == 1
+    assert cpu.register(5) == 0
+
+@cocotb.test()
+async def test_blt(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 -6")
+    cpu.instr("addi x2 x0 -6")
+    cpu.instr("addi x3 x0 -5")
+
+    cpu.instr("addi x4 x0 0") # write to these to measure if we skip
+    cpu.instr("addi x5 x0 0")
+
+    # cpu.instr("blt x1 x2 8") # skip next instruction if x1 < x2 (false)
+    cpu.instr_raw(0x0020c463)
+    cpu.instr("addi x4 x0 1")
+    # cpu.instr("blt x1 x3 8") # skip next instruction if x1 < x3 (true)
+    cpu.instr_raw(0x0030c463)
+    cpu.instr("addi x5 x0 1")
+
+    await cpu.execute()
+
+    assert cpu.register(4) == 1
+    assert cpu.register(5) == 0
+    # todo: should really make three tests for this one
+
+@cocotb.test()
+async def test_bge(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 -6")
+    cpu.instr("addi x2 x0 -5")
+    cpu.instr("addi x3 x0 -7")
+
+    cpu.instr("addi x4 x0 0") # write to these to measure if we skip
+    cpu.instr("addi x5 x0 0")
+
+    # cpu.instr("bge x1 x2 8") # skip next instruction if x1 >= x2 (false)
+    cpu.instr_raw(0x0020d463)
+    cpu.instr("addi x4 x0 1")
+    # cpu.instr("bge x1 x3 8") # skip next instruction if x1 >= x3 (true)
+    cpu.instr_raw(0x0030d463)
+    cpu.instr("addi x5 x0 1")
+
+    await cpu.execute()
+
+    assert cpu.register(4) == 1
+    assert cpu.register(5) == 0
+    # todo: should really make three tests for this one
+
+@cocotb.test()
+async def test_bltu(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 5")
+    cpu.instr("addi x2 x0 5")
+    cpu.instr("addi x3 x0 6")
+
+    cpu.instr("addi x4 x0 0") # write to these to measure if we skip
+    cpu.instr("addi x5 x0 0")
+
+    # cpu.instr("bltu x1 x2 8") # skip next instruction if x1 < x2 (false)
+    cpu.instr_raw(0x0020e463)
+    cpu.instr("addi x4 x0 1")
+    # cpu.instr("bltu x1 x3 8") # skip next instruction if x1 < x3 (true)
+    cpu.instr_raw(0x0030e463)
+    cpu.instr("addi x5 x0 1")
+
+    await cpu.execute()
+
+    assert cpu.register(4) == 1
+    assert cpu.register(5) == 0
+    # todo: should really make three tests for this one
+
+@cocotb.test()
+async def test_bgeu(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x1 x0 6")
+    cpu.instr("addi x2 x0 7")
+    cpu.instr("addi x3 x0 5")
+
+    cpu.instr("addi x4 x0 0") # write to these to measure if we skip
+    cpu.instr("addi x5 x0 0")
+
+    # cpu.instr("bgeu x1 x2 8") # skip next instruction if x1 >= x2 (false)
+    cpu.instr_raw(0x0020f463)
+    cpu.instr("addi x4 x0 1")
+    # cpu.instr("bgeu x1 x3 8") # skip next instruction if x1 >= x3 (true)
+    cpu.instr_raw(0x0030f463)
+    cpu.instr("addi x5 x0 1")
+
+    await cpu.execute()
+
+    assert cpu.register(4) == 1
+    assert cpu.register(5) == 0
+    # todo: should really make three tests for this one
