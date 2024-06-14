@@ -42,16 +42,16 @@ assign funct7 = instr[31:25];
 
 wire imm_sign = instr[31];
 
-wire [11:0] imm_is = (i_en | im_en) ? instr[31:20] : {instr[31:25], instr[11:7]};
+wire [11:0] imm_is = (i_en | im_en | jalr_en) ? instr[31:20] : {instr[31:25], instr[11:7]};
 wire [12:1] imm_b = {instr[31], instr[7], instr[30:25], instr[11:8]};
 wire [31:12] imm_u = instr[31:12];
 wire [20:1] imm_j = {instr[31], instr[19:12], instr[20], instr[30:21]};
 
 always @(*) begin
-    if(i_en | im_en | s_en) imm = {{20{imm_sign}}, imm_is};
+    if(i_en | im_en | s_en | jalr_en) imm = {{20{imm_sign}}, imm_is};
     else if(b_en) imm = {{19{imm_sign}}, imm_b, 1'd0};
     else if(lui_en | auipc_en) imm = {imm_u, 20'd0};
-    else if(jal_en) imm = {{20{imm_sign}}, imm_j};
+    else if(jal_en) imm = {{19{imm_sign}}, imm_j, 1'd0};
     else imm = 32'd0;
 end
 
