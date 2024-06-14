@@ -50,7 +50,7 @@ wire [20:1] imm_j = {instr[31], instr[19:12], instr[20], instr[30:21]};
 always @(*) begin
     if(i_en | im_en | s_en | jalr_en) imm = {{20{imm_sign}}, imm_is};
     else if(b_en) imm = {{19{imm_sign}}, imm_b, 1'd0};
-    else if(lui_en | auipc_en) imm = {imm_u, 20'd0};
+    else if(lui_en | auipc_en) imm = {imm_u, 12'd0};
     else if(jal_en) imm = {{19{imm_sign}}, imm_j, 1'd0};
     else imm = 32'd0;
 end

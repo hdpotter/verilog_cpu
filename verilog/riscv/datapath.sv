@@ -122,16 +122,16 @@ registers registers(
     .clk(clk)
 );
 
-wire [31:0] imm_shift = lui_en | auipc_en ? imm << 12 : imm;
-
 wire [31:0] alu_in1 = b_en | jal_en | lui_en | auipc_en ? pc : rs1;
-wire [31:0] alu_in2 = i_en | s_en | b_en | jal_en | jalr_en | lui_en | auipc_en ? imm_shift : rs2;
+wire [31:0] alu_in2 = i_en | s_en | b_en | jal_en | jalr_en | lui_en | auipc_en ? imm : rs2;
+
+wire add_override = b_en | auipc_en;
 
 wire [31:0] alu_out;
 
 alu alu(
     .i_en(i_en),
-    .b_en(b_en),
+    .add_override(add_override),
     .funct3(funct3),
     .funct7(funct7),
     .rs1(alu_in1),
@@ -191,7 +191,7 @@ assign reg_in =
     r_en | i_en ? alu_out :
     im_en ? mem_out :
     jal_en | jalr_en ? pc + 4 :
-    lui_en ? imm_shift :
+    lui_en ? imm :
     auipc_en ? alu_out :
     0;
 
