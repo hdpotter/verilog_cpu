@@ -641,3 +641,57 @@ async def test_bgeu(dut):
     assert cpu.register(4) == 1
     assert cpu.register(5) == 0
     # todo: should really make three tests for this one
+
+@cocotb.test()
+async def test_jal(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x0 x0 0") # nop
+    cpu.instr("addi x0 x0 0") # nop
+    # cpu.instr("jal x1 16")
+    cpu.instr_raw(0x010000ef)
+
+    await cpu.execute()
+
+    assert cpu.register(1) == (2+1)*4
+    assert cpu.pc() == 2*4 + 16
+
+@cocotb.test()
+async def test_jalr(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x0 x0 0") # nop
+    cpu.instr("addi x1 x0 16") # nop
+    # cpu.instr("jalr x2 12(x1)")
+    cpu.instr_raw(0x00c08167)
+
+    await cpu.execute()
+
+    assert cpu.register(2) == (2+1)*4
+    assert cpu.pc() == 16 + 12
+
+@cocotb.test()
+async def test_lui(dut):
+    cpu = CPU(dut)
+
+    # cpu.instr("lui x1 9")
+    cpu.instr_raw(0x000090b7)
+
+    await cpu.execute()
+
+    assert cpu.register(1) == 9 << 12
+
+@cocotb.test()
+async def test_auipc(dut):
+    cpu = CPU(dut)
+
+    cpu.instr("addi x0 x0 0") # nop
+    cpu.instr("addi x0 x0 0") # nop
+    # cpu.instr("auipc x1 9")
+    cpu.instr_raw(0x00009097)
+
+    await cpu.execute()
+
+    assert cpu.register(1) == 2*4 + (9 << 12)
+
+

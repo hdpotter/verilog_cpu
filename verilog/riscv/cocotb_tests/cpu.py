@@ -50,7 +50,7 @@ class CPU:
             self.dut.clk.value = 0
             await self.wait(2)
 
-    async def execute(self, n=64, trace=False):
+    async def execute(self, n=64, trace=False, end_in_middle=False):
         await self.setup_execution()
 
         breakout = False
@@ -58,13 +58,13 @@ class CPU:
             if trace:
                 print("pc_" + str(i).ljust(math.ceil(math.log(n, 10))) + ": " + str(int(self.dut.pc.value.integer/4)))
 
-            if self.dut.pc.value == 4*self.instr_count: # reached end of instructions
+            if self.dut.pc.value.integer >= 4*self.instr_count: # reached end of instructions
                 breakout = True
                 break
 
             await self.clock()
         
-        if not breakout:
+        if not breakout and not end_in_middle:
             assert False, "executed " + str(n) + " cycles without reaching end of instruction stream"
 
     def register(self, n):
@@ -95,6 +95,9 @@ class CPU:
         print("memory:")
         for i in range(n):
             print("  mem[" + str(i) + "]: " + str(self.dut.memory.mem[i].value))
+
+    def pc(self):
+        return self.dut.pc.value
     
     def print_program(self):
         print("program:")
@@ -109,11 +112,12 @@ class CPU:
         print("b_en: " + str(self.dut.decoder.b_en.value))
         print("lui_en: " + str(self.dut.decoder.lui_en.value))
         print("jal_en: " + str(self.dut.decoder.jal_en.value))
+        print("auipc_en: " + str(self.dut.decoder.auipc_en.value))
 
         print("rs1_addr: " + str(self.dut.rs1_addr.value))
 
         print("imm_is: " + str(self.dut.decoder.imm_is.value))
-        print("immediate: " + str(self.dut.imm.value))
+        print("imm: " + str(self.dut.imm.value))
 
         print("funct3: " + str(self.dut.funct3.value))
         print("funct7: " + str(self.dut.funct7.value))
