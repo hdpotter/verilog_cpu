@@ -9,7 +9,11 @@ module decoder (
     output [2:0] funct3,
     output [6:0] funct7,
 
-    output logic [31:0] imm
+    output alu_op_onehot alu_op,
+    output alu_rs2_reg,
+    output logic [31:0] imm,
+
+    output writeback_en
 );
 
 assign rs1_addr = instr[19:15];
@@ -20,5 +24,16 @@ assign opcode = instr[6:0];
 assign funct3 = instr[14:12];
 assign funct7 = instr[31:25];
 
+assign alu_rs2_reg = opcode[5];
+
+assign alu_op.add_en = {funct3, funct7} == {3'h0, 7'h0};
+assign alu_op.sub_en = {funct3, funct7} == {3'h0, 7'h20};
+assign alu_op.xor_en = {funct3, funct7} == {3'h4, 7'h0};
+assign alu_op.or_en = {funct3, funct7} == {3'h6, 7'h0};
+assign alu_op.and_en = {funct3, funct7} == {3'h7, 7'h0};
+
+assign writeback_en = 1;
+
+// todo: assign imm
 
 endmodule

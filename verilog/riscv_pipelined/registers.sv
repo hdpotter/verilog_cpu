@@ -1,13 +1,16 @@
 module registers(
     input [4:0] rs1_addr,
     input [4:0] rs2_addr,
-    input [4:0] rd_addr,
-    input [31:0] rd,
 
     output [31:0] rs1,
     output [31:0] rs2,
 
+
+    input [4:0] rd_addr,
+    input [31:0] rd,
     input write,
+
+
     input clk
 );
 
