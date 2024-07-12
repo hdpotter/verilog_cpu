@@ -127,7 +127,9 @@ id_ex id_ex(
     .sub_en_out(sub_en_ex),
     .xor_en_out(xor_en_ex),
     .or_en_out(or_en_ex),
-    .and_en_out(and_en_ex)
+    .and_en_out(and_en_ex),
+
+    .clk(clk)
 );
 
 // begin execute
@@ -159,7 +161,9 @@ ex_m ex_m(
     .rd_addr_in(rd_addr_ex),
     .rd_in(alu_out),
     .rd_addr_out(rd_addr_m),
-    .rd_out(rd_m)
+    .rd_out(rd_m),
+
+    .clk(clk)
 );
 
 // begin memory
@@ -181,7 +185,9 @@ m_wb m_wb(
     .rd_addr_in(rd_addr_m),
     .rd_in(rd_m),
     .rd_addr_out(rd_addr_wb),
-    .rd_out(rd_wb)
+    .rd_out(rd_wb),
+
+    .clk(clk)
 );
 
 

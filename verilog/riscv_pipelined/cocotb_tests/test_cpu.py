@@ -12,6 +12,18 @@ async def test_add(dut):
     cpu.instr("addi x5 x0 86")
 
 
-    await cpu.execute()
+    # await cpu.execute()
+    await cpu.setup_execution()
 
-    cpu.print_first_regs(6)
+    cpu.print_pipeline()
+
+    await cpu.clock()
+    cpu.print_pipeline()
+
+    await cpu.clock()
+    cpu.print_pipeline()
+
+    await cpu.clock()
+    cpu.print_pipeline()
+
+    # cpu.print_first_regs(6)

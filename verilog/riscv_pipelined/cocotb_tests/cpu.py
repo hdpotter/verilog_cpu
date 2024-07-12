@@ -54,11 +54,13 @@ class CPU:
     
     async def setup_execution(self):
         self.dut.clk.value = 0
-        
-        await self.reset()
+        self.dut.rst.value = 0
+        self.dut.pc.value = 0
 
-        await self.clear_first_memory(16)
-        await self.clear_regs()
+        # await self.reset()
+
+        # await self.clear_first_memory(16)
+        # await self.clear_regs()
 
         await self.wait(2)
 
@@ -104,4 +106,45 @@ class CPU:
         for i in range(n):
             self.set_memory(i, cocotb.types.LogicArray("xxxxxxxx"))
         await self.wait(2)
+
+
+    def print_pipeline(self):
+        print()
+        print("pipeline; pc = " + str(self.dut.pc.value))
+        self.print_if()
+        self.print_id()
+        self.print_ex()
+
+
+    def print_if(self):
+        print("  if:")
+        print("    pc: " + str(self.dut.pc.value))
+        # print("    instr: " + str(self.dut.instruction_memory.instr.value))
+    
+    def print_id(self):
+        print("  id:")
+        print("    instr: " + str(self.dut.if_id.instr_out.value))
+    
+    def print_ex(self):
+        print("  ex:")
+        print("    rd_addr: " + str(self.dut.id_ex.rd_addr_out.value))
+        print("    rs1: " + str(self.dut.id_ex.rs1_out.value))
+        print("    rs2: " + str(self.dut.id_ex.rs2_out.value))
+        print("    alu_rs2_reg: " + str(self.dut.id_ex.alu_rs2_reg_out.value))
+        print("    imm: " + str(self.dut.id_ex.imm_out.value))
+        print("    add_en: " + str(self.dut.id_ex.add_en_out.value))
+        print("    sub_en: " + str(self.dut.id_ex.sub_en_out.value))
+        print("    xor_en: " + str(self.dut.id_ex.xor_en_out.value))
+        print("    or_en: " + str(self.dut.id_ex.or_en_out.value))
+        print("    and_en: " + str(self.dut.id_ex.and_en_out.value))
+    
+    def print_m(self):
+        print("  m:")
+        print("    rd_addr: " + str(self.dut.ex_m.rd_addr_out.value))
+        print("    rd: " + str(self.dut.ex_m.rd_out.value))
+
+    def print_wb(self):
+        print("  wb:")
+        print("    rd_addr: " + str(self.dut.m_wb.rd_addr_out.value))
+        print("    rd: " + str(self.dut.m_wb.rd_out.value))
 
