@@ -9,9 +9,14 @@ module decoder (
     output [2:0] funct3,
     output [6:0] funct7,
 
-    output alu_op_onehot alu_op,
     output alu_rs2_reg,
     output logic [31:0] imm,
+
+    output add_en,
+    output sub_en,
+    output xor_en,
+    output or_en,
+    output and_en,
 
     output writeback_en
 );
@@ -26,14 +31,14 @@ assign funct7 = instr[31:25];
 
 assign alu_rs2_reg = opcode[5];
 
-assign alu_op.add_en = {funct3, funct7} == {3'h0, 7'h0};
-assign alu_op.sub_en = {funct3, funct7} == {3'h0, 7'h20};
-assign alu_op.xor_en = {funct3, funct7} == {3'h4, 7'h0};
-assign alu_op.or_en = {funct3, funct7} == {3'h6, 7'h0};
-assign alu_op.and_en = {funct3, funct7} == {3'h7, 7'h0};
+assign add_en = {funct3, funct7} == {3'h0, 7'h0};
+assign sub_en = {funct3, funct7} == {3'h0, 7'h20};
+assign xor_en = {funct3, funct7} == {3'h4, 7'h0};
+assign or_en = {funct3, funct7} == {3'h6, 7'h0};
+assign and_en = {funct3, funct7} == {3'h7, 7'h0};
 
 assign writeback_en = 1;
 
-// todo: assign imm
+assign imm = {20'b0, instr[31:25]};
 
 endmodule

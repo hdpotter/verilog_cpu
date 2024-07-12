@@ -1,12 +1,24 @@
 module datapath (
+    input rst,
     input clk
 );
+
+
+logic [31:0] pc;
+
+always @(posedge clk) begin
+    if(rst) begin
+        pc = 0;
+    end else begin
+        pc += 4;
+    end
+end
+
 
 // ################################################################
 // begin instruction fetch
 // ################################################################
 
-logic [31:0] pc;
 logic [31:0] instr_if;
 
 instruction_memory instruction_memory(
@@ -21,7 +33,7 @@ instruction_memory instruction_memory(
 logic [31:0] instr_id;
 
 if_id if_id(
-    .instr_in(instr),
+    .instr_in(instr_if),
     .instr_out(instr_id),
     .clk(clk)
 );
@@ -35,7 +47,11 @@ logic [4:0] rs1_addr;
 logic [4:0] rs2_addr;
 
 logic alu_rs1_reg_id;
-alu_op_onehot alu_op_id;
+logic add_en_id;
+logic sub_en_id;
+logic xor_en_id;
+logic or_en_id;
+logic and_en_id;
 logic [31:0] imm_id;
 
 logic writeback_en_id;
@@ -46,7 +62,13 @@ decoder decoder(
     .rs2_addr(rs2_addr),
     .rd_addr(rd_addr_id),
     .alu_rs2_reg(alu_rs2_reg_id),
-    .alu_op(alu_op_id),
+
+    .add_en(add_en_id),
+    .sub_en(sub_en_id),
+    .xor_en(xor_en_id),
+    .or_en(or_en_id),
+    .and_en(and_en_id),
+
     .imm(imm_id),
     .writeback_en(writeback_en_id)
 );
@@ -73,27 +95,39 @@ registers registers(
 // ################################################################
 // end instruction decode
 
-logic [31:0] rd_addr_ex;
+logic [4:0] rd_addr_ex;
 logic [31:0] rs1_ex;
 logic [31:0] rs2_ex;
 logic alu_rs2_reg_ex;
-alu_op_onehot alu_op_ex;
 logic [31:0] imm_ex;
+logic add_en_ex;
+logic sub_en_ex;
+logic xor_en_ex;
+logic or_en_ex;
+logic and_en_ex;
 
 id_ex id_ex(
     .rd_addr_in(rd_addr_id),
     .rs1_in(rs1_id),
     .rs2_in(rs2_id),
     .alu_rs2_reg_in(alu_rs2_reg_id),
-    .alu_op_in(alu_op_id),
     .imm_in(imm_id),
+    .add_en_in(add_en_id),
+    .sub_en_in(sub_en_id),
+    .xor_en_in(xor_en_id),
+    .or_en_in(xor_en_id),
+    .and_en_in(and_en_id),
 
-    .rd_addr_out(rd_adder_ex),
+    .rd_addr_out(rd_addr_ex),
     .rs1_out(rs1_ex),
     .rs2_out(rs2_ex),
     .alu_rs2_reg_out(alu_rs2_reg_ex),
-    .alu_op_out(alu_op_ex),
-    .imm_out(imm_ex)
+    .imm_out(imm_ex),
+    .add_en_out(add_en_ex),
+    .sub_en_out(sub_en_ex),
+    .xor_en_out(xor_en_ex),
+    .or_en_out(or_en_ex),
+    .and_en_out(and_en_ex)
 );
 
 // begin execute
@@ -104,7 +138,12 @@ logic [31:0] alu_out;
 logic alu_in_2 = alu_rs2_reg_ex ? rs2_ex : imm_ex;
 
 alu alu(
-    .op(alu_op_ex),
+    .add_en(add_en_ex),
+    .sub_en(sub_en_ex),
+    .xor_en(xor_en_ex),
+    .or_en(or_en_ex),
+    .and_en(and_en_ex),
+
     .arg1(rs1_ex),
     .arg2(rs2_ex),
     .out(alu_out)

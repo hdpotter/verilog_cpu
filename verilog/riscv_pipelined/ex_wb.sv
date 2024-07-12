@@ -3,8 +3,8 @@ module ex_wb(
     input [31:0] rd_in,
 
 
-    output [4:0] rd_addr_out,
-    output [31:0] rd_out,
+    output logic [4:0] rd_addr_out,
+    output logic [31:0] rd_out,
 
 
     input clk
