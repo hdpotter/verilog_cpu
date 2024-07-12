@@ -152,15 +152,38 @@ alu alu(
 // ################################################################
 // end execute
 
+logic [4:0] rd_addr_m;
+logic [31:0] rd_m;
+
+ex_m ex_m(
+    .rd_addr_in(rd_addr_ex),
+    .rd_in(alu_out),
+    .rd_addr_out(rd_addr_m),
+    .rd_out(rd_m)
+);
+
+// begin memory
+// ################################################################
+
+
+memory memory(
+);
+
+
+
+// ################################################################
+// end memory
+
 logic [4:0] rd_addr_wb;
 logic [31:0] rd_wb;
 
-ex_wb ex_wb(
-    .rd_addr_in(rd_addr_ex),
-    .rd_in(alu_out),
+m_wb m_wb(
+    .rd_addr_in(rd_addr_m),
+    .rd_in(rd_m),
     .rd_addr_out(rd_addr_wb),
     .rd_out(rd_wb)
 );
+
 
 // begin writeback
 // ################################################################

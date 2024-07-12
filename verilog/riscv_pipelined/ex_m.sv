@@ -1,4 +1,4 @@
-module ex_wb(
+module ex_m(
     input [4:0] rd_addr_in,
     input [31:0] rd_in,
 

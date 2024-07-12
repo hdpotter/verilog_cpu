@@ -39,9 +39,9 @@ class CPU:
 
     async def reset(self):
         await self.wait()
-        self.dut.rst = 1
+        self.dut.rst.value = 1
         await self.clock()
-        self.dut.rst = 0
+        self.dut.rst.value = 0
         await self.wait()
 
 
@@ -98,7 +98,7 @@ class CPU:
         return self.dut.memory.mem[n].value
     
     def set_memory(self, n, value):
-        self.dut.memory.mem[n] = value
+        self.dut.memory.mem[n].value = value
 
     async def clear_first_memory(self, n):
         for i in range(n):
