@@ -39,6 +39,6 @@ assign and_en = {funct3, funct7} == {3'h7, 7'h0};
 
 assign writeback_en = 1;
 
-assign imm = {20'b0, instr[31:25]};
+assign imm = {20'b0, instr[31:20]};
 
 endmodule

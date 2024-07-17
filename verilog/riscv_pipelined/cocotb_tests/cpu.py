@@ -95,6 +95,10 @@ class CPU:
         for i in range(1, 32):
             self.dut.registers.mem[i].value = cocotb.types.LogicArray("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
+    def print_first_instrs(self, n):
+        print("instructions")
+        for i in range(n):
+            print("  " + str(i) + ": " + str(self.dut.instruction_memory.memory[i].value))
 
     def memory(self, n):
         return self.dut.memory.mem[n].value
@@ -114,6 +118,8 @@ class CPU:
         self.print_if()
         self.print_id()
         self.print_ex()
+        self.print_m()
+        self.print_wb()
 
 
     def print_if(self):

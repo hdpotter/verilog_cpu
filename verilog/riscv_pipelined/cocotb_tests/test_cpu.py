@@ -15,15 +15,29 @@ async def test_add(dut):
     # await cpu.execute()
     await cpu.setup_execution()
 
-    cpu.print_pipeline()
+    cpu.print_first_instrs(6)
+
+    cpu.print_pipeline() # nothing done
 
     await cpu.clock()
-    cpu.print_pipeline()
+    cpu.print_pipeline() # IF complete
 
     await cpu.clock()
-    cpu.print_pipeline()
+    cpu.print_pipeline() # ID complete
 
     await cpu.clock()
-    cpu.print_pipeline()
+    cpu.print_pipeline() # EX complete
 
-    # cpu.print_first_regs(6)
+    await cpu.clock()
+    cpu.print_pipeline() # M complete
+
+    await cpu.clock()
+    cpu.print_pipeline() # WB complete
+
+    await cpu.clock()
+    cpu.print_pipeline() # second WB complete
+
+    await cpu.clock()
+    # cpu.print_pipeline() # third WB complete
+
+    cpu.print_first_regs(6)

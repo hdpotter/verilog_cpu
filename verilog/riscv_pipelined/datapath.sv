@@ -76,9 +76,9 @@ decoder decoder(
 logic [31:0] rs1_id;
 logic [31:0] rs2_id;
 
-logic [4:0] reg_write_addr; // separate names because we need to propagate through pipeline
-logic [31:0] reg_write_val;
-logic reg_write_en;
+wire [4:0] reg_write_addr; // separate names because we need to propagate through pipeline
+wire [31:0] reg_write_val;
+wire reg_write_en;
 
 registers registers(
     .rs1_addr(rs1_addr),
@@ -89,7 +89,9 @@ registers registers(
 
     .rd_addr(reg_write_addr),
     .rd(reg_write_val),
-    .write(reg_write_en)
+    .write(reg_write_en),
+
+    .clk(clk)
 );
 
 // ################################################################
@@ -137,7 +139,7 @@ id_ex id_ex(
 
 logic [31:0] alu_out;
 
-logic alu_in_2 = alu_rs2_reg_ex ? rs2_ex : imm_ex;
+wire[31:0] alu_in_2 = alu_rs2_reg_ex ? rs2_ex : imm_ex;
 
 alu alu(
     .add_en(add_en_ex),
@@ -147,7 +149,7 @@ alu alu(
     .and_en(and_en_ex),
 
     .arg1(rs1_ex),
-    .arg2(rs2_ex),
+    .arg2(alu_in_2),
     .out(alu_out)
 );
 
@@ -196,6 +198,7 @@ m_wb m_wb(
 
 assign reg_write_addr = rd_addr_wb;
 assign reg_write_val = rd_wb;
+assign reg_write_en = 1;
 
 
 endmodule
