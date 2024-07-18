@@ -31,11 +31,11 @@ assign funct7 = instr[31:25];
 
 assign alu_rs2_reg = opcode[5];
 
-assign add_en = {funct3, funct7} == {3'h0, 7'h0};
-assign sub_en = {funct3, funct7} == {3'h0, 7'h20};
-assign xor_en = {funct3, funct7} == {3'h4, 7'h0};
-assign or_en = {funct3, funct7} == {3'h6, 7'h0};
-assign and_en = {funct3, funct7} == {3'h7, 7'h0};
+assign add_en = funct3 == 3'h0 && !sub_en; //todo: how to handle this
+assign sub_en = funct3 == 3'h0 && funct7 == 7'h20;
+assign xor_en = funct3 == 3'h4;
+assign or_en = funct3 == 3'h6;
+assign and_en = funct3 == 3'h7;
 
 assign writeback_en = 1;
 
