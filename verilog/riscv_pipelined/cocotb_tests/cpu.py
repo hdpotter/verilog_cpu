@@ -26,6 +26,9 @@ class CPU:
     def instr(self, s):
         self.instr_raw(assemble(s))
 
+    def instr_ebreak(self):
+        self.instr_raw(0x00100073)
+
     async def wait(self, n=2):
         await Timer(n, units="ns")
 
@@ -57,7 +60,7 @@ class CPU:
         self.dut.rst.value = 0
         self.dut.pc.value = 0
 
-        # await self.reset()
+        await self.reset()
 
         # await self.clear_first_memory(16)
         # await self.clear_regs()
@@ -66,7 +69,7 @@ class CPU:
 
 
 
-    async def execute(self, n=64, trace=False, end_in_middle=False):
+    async def execute(self, n=64, trace=False, print_pipeline = False, end_in_middle=False):
         await self.setup_execution()
 
         breakout = False
@@ -74,7 +77,10 @@ class CPU:
             if trace:
                 print("pc_" + str(i).ljust(math.ceil(math.log(n, 10))) + ": " + str(int(self.dut.pc.value.integer/4)))
 
-            if self.dut.pc.value.integer >= 4*self.instr_count: # reached end of instructions
+            if print_pipeline:
+                self.print_pipeline()
+
+            if self.dut.broken.value:
                 breakout = True
                 break
 
@@ -82,6 +88,10 @@ class CPU:
         
         if not breakout and not end_in_middle:
             assert False, "executed " + str(n) + " cycles without reaching end of instruction stream"
+        
+        for i in range(6):
+            print("final cycle " + str(i))
+            await self.clock()
 
     def register(self, n):
         return self.dut.registers.mem[n].value
@@ -115,6 +125,7 @@ class CPU:
     def print_pipeline(self):
         print()
         print("pipeline; pc = " + str(self.dut.pc.value))
+        print("broken: " + str(self.dut.broken.value))
         self.print_if()
         self.print_id()
         self.print_ex()

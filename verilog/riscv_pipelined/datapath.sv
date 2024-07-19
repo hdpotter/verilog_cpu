@@ -5,14 +5,8 @@ module datapath (
 
 
 logic [31:0] pc;
+logic broken;
 
-always @(posedge clk) begin
-    if(rst) begin
-        pc <= 0;
-    end else begin
-        pc <= pc + 4;
-    end
-end
 
 
 // ################################################################
@@ -23,9 +17,19 @@ logic [31:0] instr_if;
 
 instruction_memory instruction_memory(
     .addr(pc),
-    .instr(instr_if)
+    .instr(instr_if),
+    .broken(broken)
 );
 
+always @(posedge clk) begin
+    if(rst) begin
+        pc <= 0;
+        broken <= 0;
+    end else begin
+        pc <= pc + 4;
+        broken <= broken || instr_if == 32'h00100073;
+    end
+end
 
 // ################################################################
 // end instruction fetch
