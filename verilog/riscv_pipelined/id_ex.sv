@@ -12,6 +12,9 @@ module id_ex(
     input logic or_en_in,
     input logic and_en_in,
 
+    input logic rs1_alu_loopback_in,
+    input logic rs2_alu_loopback_in,
+
 
     output logic [4:0] rd_addr_out,
     output logic [31:0] rs1_out,
@@ -26,8 +29,11 @@ module id_ex(
     output logic or_en_out,
     output logic and_en_out,
 
+    output logic rs1_alu_loopback_out,
+    output logic rs2_alu_loopback_out,
 
-    input clk
+    input clk,
+    input rst
 );
 
 always @(posedge clk) begin
@@ -44,6 +50,8 @@ always @(posedge clk) begin
     and_en_out <= and_en_in;
 
     imm_out <= imm_in;
+
+
 end
 
 endmodule

@@ -18,7 +18,25 @@ module decoder (
     output or_en,
     output and_en,
 
-    output writeback_en
+    output writeback_en,
+
+    // data hazard resolution
+    input [4:0] prev_rd_addr,
+    input prev_writeback,
+
+    input [4:0] prev2_rd_addr,
+    input prev2_writeback,
+
+    input [4:0] prev3_rd_addr,
+    input prev3_writeback,
+
+    output rs1_alu_loopback,
+    output rs2_alu_loopback,
+
+    output rs1_take_prev2,
+    output rs2_take_prev2,
+    output rs1_take_prev3,
+    output rs2_take_prev3
 );
 
 assign rs1_addr = instr[19:15];
@@ -40,5 +58,19 @@ assign and_en = funct3 == 3'h7;
 assign writeback_en = 1;
 
 assign imm = {20'b0, instr[31:20]};
+
+// data hazard resolution
+assign rs1_alu_loopback = prev_writeback && prev_rd_addr == rs1_addr;
+assign rs2_alu_loopback = prev_writeback && prev_rd_addr == rs2_addr;
+
+assign rs1_take_prev2 = prev2_writeback && prev2_rd_addr == rs1_addr;
+assign rs2_take_prev2 = prev2_writeback && prev2_rd_addr == rs2_addr;
+
+assign rs1_take_prev3 = prev3_writeback && !rs1_take_prev2 == rs1_addr;
+assign rs2_take_prev3 = prev3_writeback && !rs2_take_prev3 == rs2_addr;
+
+
+
+
 
 endmodule

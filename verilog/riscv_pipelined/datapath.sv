@@ -60,6 +60,14 @@ logic [31:0] imm_id;
 
 logic writeback_en_id;
 
+logic rs1_alu_loopback;
+logic rs2_alu_loopback;
+
+logic rs1_take_prev2;
+logic rs2_take_prev2;
+logic rs1_take_prev3;
+logic rs2_take_prev3;
+
 decoder decoder(
     .instr(instr_id),
     .rs1_addr(rs1_addr),
@@ -74,11 +82,25 @@ decoder decoder(
     .and_en(and_en_id),
 
     .imm(imm_id),
-    .writeback_en(writeback_en_id)
+    .writeback_en(writeback_en_id),
+
+    .prev_rd_addr(rd_addr_ex),
+    .prev_writeback(writeback_en_ex),
+    .prev2_rd_addr(rd_addr_m),
+    .prev2_writeback(writeback_en_m),
+    .prev3_rd_addr(rd_addr_wb),
+    .prev3_writeback(writeback_en_wb),
+
+    .rs1_alu_loopback(rs1_alu_loopback),
+    .rs2_alu_loopback(rs2_alu_loopback),
+    .rs1_take_prev2(rs1_take_prev2),
+    .rs2_take_prev2(rs2_take_prev2),
+    .rs1_take_prev3(rs1_take_prev3),
+    .rs2_take_prev3(rs2_take_prev3)
 );
 
-logic [31:0] rs1_id;
-logic [31:0] rs2_id;
+logic [31:0] rs1_reg;
+logic [31:0] rs2_reg;
 
 wire [4:0] reg_write_addr; // separate names because we need to propagate through pipeline
 wire [31:0] reg_write_val;
@@ -88,8 +110,8 @@ registers registers(
     .rs1_addr(rs1_addr),
     .rs2_addr(rs2_addr),
 
-    .rs1(rs1_id),
-    .rs2(rs2_id),
+    .rs1(rs1_reg),
+    .rs2(rs2_reg),
 
     .rd_addr(reg_write_addr),
     .rd(reg_write_val),
@@ -97,6 +119,11 @@ registers registers(
 
     .clk(clk)
 );
+
+wire rs1_id = rs1_take_prev2 ? rd_m : (rs1_take_prev ? rd_wb : rs1_reg); //todo: more idiomatic way of doing 3-way priority?
+wire rs2_id = rs2_take_prev2 ? rd_m : (rs2_take_prev ? rd_wb : rs2_reg); //todo: priority delay stacks with reg read delay; figure out if it should be here or in alu
+
+
 
 // ################################################################
 // end instruction decode
