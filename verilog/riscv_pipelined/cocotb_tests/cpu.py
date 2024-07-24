@@ -74,15 +74,15 @@ class CPU:
 
         breakout = False
         for i in range(n):
+            if self.dut.broken.value:
+                breakout = True
+                break
+
             if trace:
                 print("pc_" + str(i).ljust(math.ceil(math.log(n, 10))) + ": " + str(int(self.dut.pc.value.integer/4)))
 
             if print_pipeline:
                 self.print_pipeline()
-
-            if self.dut.broken.value:
-                breakout = True
-                break
 
             await self.clock()
         
@@ -91,6 +91,13 @@ class CPU:
         
         for i in range(6):
             print("final cycle " + str(i))
+
+            if trace:
+                print("pc_" + str(i).ljust(math.ceil(math.log(n, 10))) + ": " + str(int(self.dut.pc.value.integer/4)))
+
+            if print_pipeline:
+                self.print_pipeline()
+
             await self.clock()
 
     def register(self, n):
