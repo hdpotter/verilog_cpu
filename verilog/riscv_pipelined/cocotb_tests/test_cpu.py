@@ -21,7 +21,7 @@ async def test_add(dut):
 
     cpu.print_first_instrs(12)
     
-    await cpu.execute(trace = True, print_pipeline = True)
+    await cpu.execute()
 
 
     # cpu.print_pipeline() # nothing done

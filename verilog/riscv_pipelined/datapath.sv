@@ -39,7 +39,8 @@ logic [31:0] instr_id;
 if_id if_id(
     .instr_in(instr_if),
     .instr_out(instr_id),
-    .clk(clk)
+    .clk(clk),
+    .rst(rst)
 );
 
 // begin instruction decode
@@ -120,8 +121,8 @@ registers registers(
     .clk(clk)
 );
 
-wire rs1_id = rs1_take_prev2 ? rd_m : (rs1_take_prev ? rd_wb : rs1_reg); //todo: more idiomatic way of doing 3-way priority?
-wire rs2_id = rs2_take_prev2 ? rd_m : (rs2_take_prev ? rd_wb : rs2_reg); //todo: priority delay stacks with reg read delay; figure out if it should be here or in alu
+wire [31:0] rs1_id = rs1_take_prev2 ? rd_m : (rs1_take_prev3 ? rd_wb : rs1_reg); //todo: more idiomatic way of doing 3-way priority?
+wire [31:0] rs2_id = rs2_take_prev2 ? rd_m : (rs2_take_prev3 ? rd_wb : rs2_reg); //todo: priority delay stacks with reg read delay; figure out if it should be here or in alu
 
 
 
@@ -162,7 +163,8 @@ id_ex id_ex(
     .or_en_out(or_en_ex),
     .and_en_out(and_en_ex),
 
-    .clk(clk)
+    .clk(clk),
+    .rst(rst)
 );
 
 // begin execute
@@ -196,7 +198,8 @@ ex_m ex_m(
     .rd_addr_out(rd_addr_m),
     .rd_out(rd_m),
 
-    .clk(clk)
+    .clk(clk),
+    .rst(rst)
 );
 
 // begin memory
@@ -220,7 +223,8 @@ m_wb m_wb(
     .rd_addr_out(rd_addr_wb),
     .rd_out(rd_wb),
 
-    .clk(clk)
+    .clk(clk),
+    .rst(rst)
 );
 
 
