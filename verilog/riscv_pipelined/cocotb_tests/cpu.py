@@ -138,6 +138,7 @@ class CPU:
         self.print_ex()
         self.print_m()
         self.print_wb()
+        self.print_aux()
 
 
     def print_if(self):
@@ -171,4 +172,16 @@ class CPU:
         print("  wb:")
         print("    rd_addr: " + str(self.dut.m_wb.rd_addr_out.value))
         print("    rd: " + str(self.dut.m_wb.rd_out.value))
+    
+    def print_aux(self):
+        print("  aux:")
+        # print("    alu.arg1: " + str(self.dut.alu.arg1.value))
+        # print("    alu.arg2: " + str(self.dut.alu.arg2.value))
+        # print("    rd_addr_ex: " + str(self.dut.rd_addr_ex.value))
+        # print("    alu_out: " + str(self.dut.alu_out.value))
+        # print("    rd_addr_m: " + str(self.dut.rd_addr_m.value))
+        # print("    rd_m: " + str(self.dut.rd_m.value))
+        print("    ex_m.rd_addr_in: " + str(self.dut.ex_m.rd_addr_in.value))
+        print("    ex_m.rd_addr_out: " + str(self.dut.ex_m.rd_addr_out.value))
+
 

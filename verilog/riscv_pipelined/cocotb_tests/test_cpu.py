@@ -6,27 +6,27 @@ async def test_add(dut):
     cpu = CPU(dut)
     
     cpu.instr("addi x1 x0 18")
-    cpu.instr("addi x2 x0 67")
-    cpu.instr("addi x0 x0 0")
-    cpu.instr("addi x0 x0 0")
-    cpu.instr("addi x0 x0 0")
-    cpu.instr("addi x0 x0 0")
-    cpu.instr("addi x0 x0 0")
-    cpu.instr("add x3 x1 x2")
+    # cpu.instr("addi x2 x0 67")
+    # cpu.instr("addi x0 x0 0")
+    # cpu.instr("addi x0 x0 0")
+    # cpu.instr("addi x0 x0 0")
+    # cpu.instr("addi x0 x0 0")
+    # cpu.instr("addi x0 x0 0")
+    # cpu.instr("add x3 x1 x2")
     cpu.instr_ebreak()
 
 
     # await cpu.execute()
-    await cpu.setup_execution()
+    # await cpu.setup_execution()
 
-    cpu.print_first_instrs(12)
+    # cpu.print_first_instrs(12)
     
-    await cpu.execute()
+    await cpu.execute(print_pipeline=True)
 
 
     # cpu.print_pipeline() # nothing done
 
-    await cpu.clock()
+    # await cpu.clock()
     # cpu.print_pipeline() # IF complete
 
     # print("==== funct3: " + str(dut.decoder.funct3.value))

@@ -1,6 +1,6 @@
 module ex_m(
-    input [4:0] rd_addr_in,
-    input [31:0] rd_in,
+    input logic [4:0] rd_addr_in,
+    input logic [31:0] rd_in,
 
 
     output logic [4:0] rd_addr_out,

@@ -12,7 +12,7 @@ module m_wb(
 );
 
 always @(posedge clk) begin
-    if(rst) begin
+    if(!rst) begin
         rd_addr_out <= rd_addr_in;
         rd_out <= rd_in;
     end else begin
