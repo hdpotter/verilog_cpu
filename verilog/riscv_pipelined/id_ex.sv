@@ -48,7 +48,7 @@ always @(posedge clk) begin
         alu_rs2_reg_out <= alu_rs2_reg_in;
 
         rs1_alu_loopback_out <= rs1_alu_loopback_in;
-        rs2_alu_loopback_out <= rs1_alu_loopback_in;
+        rs2_alu_loopback_out <= rs2_alu_loopback_in;
 
         add_en_out <= add_en_in;
         sub_en_out <= sub_en_in;

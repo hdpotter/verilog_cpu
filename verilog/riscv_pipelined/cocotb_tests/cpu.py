@@ -190,5 +190,17 @@ class CPU:
         print("    decoder.prev_rd_addr: " + str(self.dut.decoder.prev_rd_addr.value))
         print("    decoder.rs1_addr: " + str(self.dut.decoder.rs1_addr.value))
         
+        print("    alu_in_2_maybe_loopback: " + str(self.dut.alu_in_2_maybe_loopback.value))
+        print("    rs2_alu_loopback_ex: " + str(self.dut.rs2_alu_loopback_ex.value))
+        print("    rd_m: " + str(self.dut.rd_m.value))
+        print("    rs2_ex: " + str(self.dut.rs2_ex.value))
+        print("    alu_in_2: " + str(self.dut.alu_in_2.value))
+        print("    alu_rs2_reg_ex: " + str(self.dut.alu_rs2_reg_ex.value))
+        print("    imm_ex: " + str(self.dut.imm_ex.value))
 
+        print("    decoder.rs2_alu_loopback: " + str(self.dut.decoder.rs2_alu_loopback.value))
+        print("    decoder.prev_writeback: " + str(self.dut.decoder.prev_writeback.value))
+        print("    decoder.prev_rd_addr: " + str(self.dut.decoder.prev_rd_addr.value))
+        print("    decoder.rs2_addr: " + str(self.dut.decoder.rs2_addr.value))
+        print("    decoder.instr: " + str(self.dut.decoder.instr.value))
 
