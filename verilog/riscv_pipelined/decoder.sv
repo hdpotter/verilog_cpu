@@ -55,7 +55,14 @@ assign xor_en = funct3 == 3'h4;
 assign or_en = funct3 == 3'h6;
 assign and_en = funct3 == 3'h7;
 
-assign writeback_en = 1;
+assign writeback_en =  //todo: find more efficient solution
+    opcode == 7'b0110011 || //add etc.
+    opcode == 7'b0010011 || //addi etc.
+    opcode == 7'b0000011 || //lb etc.
+    opcode == 7'b1101111 || //jal
+    opcode == 7'b1100111 || //jalr
+    opcode == 7'b0110111 || //lui
+    opcode == 7'b0010111;   //auipc
 
 assign imm = {20'b0, instr[31:20]};
 
