@@ -61,8 +61,8 @@ logic [31:0] imm_id;
 
 logic writeback_en_id;
 
-logic rs1_alu_loopback;
-logic rs2_alu_loopback;
+logic rs1_alu_loopback_id;
+logic rs2_alu_loopback_id;
 
 logic rs1_take_prev2;
 logic rs2_take_prev2;
@@ -92,8 +92,8 @@ decoder decoder(
     .prev3_rd_addr(rd_addr_wb),
     .prev3_writeback(writeback_en_wb),
 
-    .rs1_alu_loopback(rs1_alu_loopback),
-    .rs2_alu_loopback(rs2_alu_loopback),
+    .rs1_alu_loopback(rs1_alu_loopback_id),
+    .rs2_alu_loopback(rs2_alu_loopback_id),
     .rs1_take_prev2(rs1_take_prev2),
     .rs2_take_prev2(rs2_take_prev2),
     .rs1_take_prev3(rs1_take_prev3),
@@ -139,6 +139,10 @@ logic sub_en_ex;
 logic xor_en_ex;
 logic or_en_ex;
 logic and_en_ex;
+logic writeback_en_ex;
+
+logic rs1_alu_loopback_ex;
+logic rs2_alu_loopback_ex;
 
 id_ex id_ex(
     .rd_addr_in(rd_addr_id),
@@ -151,6 +155,9 @@ id_ex id_ex(
     .xor_en_in(xor_en_id),
     .or_en_in(xor_en_id),
     .and_en_in(and_en_id),
+    .rs1_alu_loopback_in(rs1_alu_loopback_id),
+    .rs2_alu_loopback_in(rs2_alu_loopback_id),
+    .writeback_en_in(writeback_en_id),
 
     .rd_addr_out(rd_addr_ex),
     .rs1_out(rs1_ex),
@@ -162,6 +169,9 @@ id_ex id_ex(
     .xor_en_out(xor_en_ex),
     .or_en_out(or_en_ex),
     .and_en_out(and_en_ex),
+    .rs1_alu_loopback_out(rs1_alu_loopback_ex),
+    .rs2_alu_loopback_out(rs2_alu_loopback_ex),
+    .writeback_en_out(writeback_en_ex),
 
     .clk(clk),
     .rst(rst)
@@ -172,7 +182,10 @@ id_ex id_ex(
 
 logic [31:0] alu_out;
 
-wire[31:0] alu_in_2 = alu_rs2_reg_ex ? rs2_ex : imm_ex;
+wire[31:0] alu_in_1 = rs1_alu_loopback_ex ? rd_m : rs1_ex;
+
+wire[31:0] alu_in_2_maybe_loopback = rs2_alu_loopback_ex ? rd_m : rs2_ex;
+wire[31:0] alu_in_2 = alu_rs2_reg_ex ? alu_in_2_maybe_loopback : imm_ex; 
 
 alu alu(
     .add_en(add_en_ex),
@@ -181,7 +194,7 @@ alu alu(
     .or_en(or_en_ex),
     .and_en(and_en_ex),
 
-    .arg1(rs1_ex),
+    .arg1(alu_in_1),
     .arg2(alu_in_2),
     .out(alu_out)
 );
@@ -191,12 +204,16 @@ alu alu(
 
 logic [4:0] rd_addr_m;
 logic [31:0] rd_m;
+logic writeback_en_m;
 
 ex_m ex_m(
     .rd_addr_in(rd_addr_ex),
     .rd_in(alu_out),
+    .writeback_en_in(writeback_en_ex),
+
     .rd_addr_out(rd_addr_m),
     .rd_out(rd_m),
+    .writeback_en_out(writeback_en_m),
 
     .clk(clk),
     .rst(rst)
@@ -216,12 +233,16 @@ memory memory(
 
 logic [4:0] rd_addr_wb;
 logic [31:0] rd_wb;
+logic writeback_en_wb;
 
 m_wb m_wb(
     .rd_addr_in(rd_addr_m),
     .rd_in(rd_m),
+    .writeback_en_in(writeback_en_m),
+
     .rd_addr_out(rd_addr_wb),
     .rd_out(rd_wb),
+    .writeback_en_out(writeback_en_wb),
 
     .clk(clk),
     .rst(rst)

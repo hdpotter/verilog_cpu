@@ -67,7 +67,7 @@ assign rs1_take_prev2 = prev2_writeback && prev2_rd_addr == rs1_addr;
 assign rs2_take_prev2 = prev2_writeback && prev2_rd_addr == rs2_addr;
 
 assign rs1_take_prev3 = prev3_writeback && !rs1_take_prev2 == rs1_addr;
-assign rs2_take_prev3 = prev3_writeback && !rs2_take_prev3 == rs2_addr;
+assign rs2_take_prev3 = prev3_writeback && !rs2_take_prev2 == rs2_addr;
 
 
 

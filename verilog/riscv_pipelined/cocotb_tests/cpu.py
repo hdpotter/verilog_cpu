@@ -162,6 +162,8 @@ class CPU:
         print("    xor_en: " + str(self.dut.id_ex.xor_en_out.value))
         print("    or_en: " + str(self.dut.id_ex.or_en_out.value))
         print("    and_en: " + str(self.dut.id_ex.and_en_out.value))
+        print("    rs1_alu_loopback: " + str(self.dut.id_ex.rs1_alu_loopback_out.value))
+        print("    rs2_alu_loopback: " + str(self.dut.id_ex.rs2_alu_loopback_out.value))
     
     def print_m(self):
         print("  m:")
@@ -175,13 +177,18 @@ class CPU:
     
     def print_aux(self):
         print("  aux:")
-        # print("    alu.arg1: " + str(self.dut.alu.arg1.value))
-        # print("    alu.arg2: " + str(self.dut.alu.arg2.value))
+        print("    rs1_alu_loopback_ex: " + str(self.dut.rs1_alu_loopback_ex.value))
+        print("    alu.arg1: " + str(self.dut.alu.arg1.value))
+        print("    alu.arg2: " + str(self.dut.alu.arg2.value))
         # print("    rd_addr_ex: " + str(self.dut.rd_addr_ex.value))
         # print("    alu_out: " + str(self.dut.alu_out.value))
         # print("    rd_addr_m: " + str(self.dut.rd_addr_m.value))
         # print("    rd_m: " + str(self.dut.rd_m.value))
-        print("    ex_m.rd_addr_in: " + str(self.dut.ex_m.rd_addr_in.value))
-        print("    ex_m.rd_addr_out: " + str(self.dut.ex_m.rd_addr_out.value))
+        # print("    ex_m.rd_addr_in: " + str(self.dut.ex_m.rd_addr_in.value))
+        # print("    ex_m.rd_addr_out: " + str(self.dut.ex_m.rd_addr_out.value))
+        print("    decoder.prev_writeback: " + str(self.dut.decoder.prev_writeback.value))
+        print("    decoder.prev_rd_addr: " + str(self.dut.decoder.prev_rd_addr.value))
+        print("    decoder.rs1_addr: " + str(self.dut.decoder.rs1_addr.value))
+        
 
 
