@@ -19,24 +19,8 @@ module decoder (
     output and_en,
 
     output writeback_en,
-
-    // data hazard resolution
-    input [4:0] prev_rd_addr,
-    input prev_writeback,
-
-    input [4:0] prev2_rd_addr,
-    input prev2_writeback,
-
-    input [4:0] prev3_rd_addr,
-    input prev3_writeback,
-
-    output rs1_alu_loopback,
-    output rs2_alu_loopback,
-
-    output rs1_take_prev2,
-    output rs2_take_prev2,
-    output rs1_take_prev3,
-    output rs2_take_prev3
+    output use_rs1,
+    output use_rs2
 );
 
 assign rs1_addr = instr[19:15];
@@ -55,27 +39,67 @@ assign xor_en = funct3 == 3'h4;
 assign or_en = funct3 == 3'h6;
 assign and_en = funct3 == 3'h7;
 
-assign writeback_en =  //todo: find more efficient solution
-    opcode == 7'b0110011 || //add etc.
-    opcode == 7'b0010011 || //addi etc.
-    opcode == 7'b0000011 || //lb etc.
-    opcode == 7'b1101111 || //jal
-    opcode == 7'b1100111 || //jalr
-    opcode == 7'b0110111 || //lui
-    opcode == 7'b0010111;   //auipc
-
 assign imm = {20'b0, instr[31:20]};
 
-// data hazard resolution
-assign rs1_alu_loopback = prev_writeback && prev_rd_addr == rs1_addr;
-assign rs2_alu_loopback = prev_writeback && prev_rd_addr == rs2_addr;
-
-assign rs1_take_prev2 = prev2_writeback && prev2_rd_addr == rs1_addr;
-assign rs2_take_prev2 = prev2_writeback && prev2_rd_addr == rs2_addr;
-
-assign rs1_take_prev3 = prev3_writeback && !rs1_take_prev2 == rs1_addr;
-assign rs2_take_prev3 = prev3_writeback && !rs2_take_prev2 == rs2_addr;
-
+always @(*) begin
+    case(opcode)
+        7'b0110011: begin //add etc.
+            writeback_en = 1;
+            use_rs1 = 1;
+            use_rs2 = 1;
+        end
+        7'b0010011: begin //addi etc.
+            writeback_en = 1;
+            use_rs1 = 1;
+            use_rs2 = 0;
+        end
+        7'b0000011: begin //lb etc.
+            writeback_en = 1;
+            use_rs1 = 1;
+            use_rs2 = 0;
+        end
+        7'b0100011: begin //sb etc.
+            writeback_en = 0;
+            use_rs1 = 1;
+            use_rs2 = 1;
+        end
+        7'b1100011: begin //beq etc.
+            writeback_en = 0;
+            use_rs1 = 1;
+            use_rs2 = 1;
+        end
+        7'b1101111: begin //jal
+            writeback_en = 1;
+            use_rs1 = 0;
+            use_rs2 = 0;
+        end
+        7'b1100111: begin //jalr
+            writeback_en = 0;
+            use_rs1 = 1;
+            use_rs2 = 0;
+        end
+        7'b0110111: begin //lui
+            writeback_en = 1;
+            use_rs1 = 0;
+            use_rs2 = 0;
+        end
+        7'b0010111: begin //auipc
+            writeback_en = 1;
+            use_rs1 = 0;
+            use_rs2 = 0;
+        end
+        7'b1110011: begin //ecall, ebreak
+            writeback_en = 0;
+            use_rs1 = 0;
+            use_rs2 = 0;
+        end
+        default: begin //instruction error
+            writeback_en = 0;
+            use_rs1 = 0;
+            use_rs2 = 0;
+        end
+    endcase
+end
 
 
 

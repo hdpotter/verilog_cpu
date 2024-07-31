@@ -69,6 +69,9 @@ logic rs2_take_prev2;
 logic rs1_take_prev3;
 logic rs2_take_prev3;
 
+wire use_rs1;
+wire use_rs2;
+
 decoder decoder(
     .instr(instr_id),
     .rs1_addr(rs1_addr),
@@ -84,20 +87,22 @@ decoder decoder(
 
     .imm(imm_id),
     .writeback_en(writeback_en_id),
+    .use_rs1(use_rs1),
+    .use_rs2(use_rs2)
 
-    .prev_rd_addr(rd_addr_ex),
-    .prev_writeback(writeback_en_ex),
-    .prev2_rd_addr(rd_addr_m),
-    .prev2_writeback(writeback_en_m),
-    .prev3_rd_addr(rd_addr_wb),
-    .prev3_writeback(writeback_en_wb),
+    // .prev_rd_addr(rd_addr_ex),
+    // .prev_writeback(writeback_en_ex),
+    // .prev2_rd_addr(rd_addr_m),
+    // .prev2_writeback(writeback_en_m),
+    // .prev3_rd_addr(rd_addr_wb),
+    // .prev3_writeback(writeback_en_wb),
 
-    .rs1_alu_loopback(rs1_alu_loopback_id),
-    .rs2_alu_loopback(rs2_alu_loopback_id),
-    .rs1_take_prev2(rs1_take_prev2),
-    .rs2_take_prev2(rs2_take_prev2),
-    .rs1_take_prev3(rs1_take_prev3),
-    .rs2_take_prev3(rs2_take_prev3)
+    // .rs1_alu_loopback(rs1_alu_loopback_id),
+    // .rs2_alu_loopback(rs2_alu_loopback_id),
+    // .rs1_take_prev2(rs1_take_prev2),
+    // .rs2_take_prev2(rs2_take_prev2),
+    // .rs1_take_prev3(rs1_take_prev3),
+    // .rs2_take_prev3(rs2_take_prev3)
 );
 
 logic [31:0] rs1_reg;
@@ -124,6 +129,37 @@ registers registers(
 wire [31:0] rs1_id = rs1_take_prev2 ? rd_m : (rs1_take_prev3 ? rd_wb : rs1_reg); //todo: more idiomatic way of doing 3-way priority?
 wire [31:0] rs2_id = rs2_take_prev2 ? rd_m : (rs2_take_prev3 ? rd_wb : rs2_reg); //todo: priority delay stacks with reg read delay; figure out if it should be here or in alu
 
+
+forwarding forwarding(
+    .rs1_addr(rs1_addr),
+    .rs2_addr(rs2_addr),
+    .use_rs1(use_rs1),
+    .use_rs2(use_rs2),
+
+    .prev1_write(),
+    .prev2_write(),
+    .prev3_write(),
+
+    .prev1_write_addr(),
+    .prev2_write_addr(),
+    .prev3_write_addr(),
+
+    .prev1_mem(),
+    .prev2_mem(),
+    .prev3_mem(),
+
+    .skip_instr(),
+
+    .rs1_take_mem(),
+    .rs1_take_prev1(),
+    .rs1_take_prev2(),
+    .rs1_take_prev3(),
+
+    .rs2_take_mem(),
+    .rs2_take_prev1(),
+    .rs2_take_prev2(),
+    .rs2_take_prev3()
+);
 
 
 // ################################################################
