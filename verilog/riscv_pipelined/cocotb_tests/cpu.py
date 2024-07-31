@@ -90,7 +90,7 @@ class CPU:
             assert False, "executed " + str(n) + " cycles without reaching end of instruction stream"
         
         for i in range(6):
-            print("final cycle " + str(i))
+            # print("final cycle " + str(i))
 
             if trace:
                 print("pc_" + str(i).ljust(math.ceil(math.log(n, 10))) + ": " + str(int(self.dut.pc.value.integer/4)))
