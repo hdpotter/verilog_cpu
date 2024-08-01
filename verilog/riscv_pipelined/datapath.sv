@@ -60,15 +60,7 @@ logic and_en_id;
 logic [31:0] imm_id;
 
 logic writeback_en_id;
-
-logic rs1_alu_loopback_id;
-logic rs2_alu_loopback_id;
-
-logic rs1_take_prev2;
-logic rs2_take_prev2;
-logic rs1_take_prev3;
-logic rs2_take_prev3;
-
+wire writeback_from_mem_id;
 wire use_rs1;
 wire use_rs2;
 
@@ -86,23 +78,11 @@ decoder decoder(
     .and_en(and_en_id),
 
     .imm(imm_id),
+
     .writeback_en(writeback_en_id),
+    .writeback_from_mem(writeback_from_mem_id),
     .use_rs1(use_rs1),
     .use_rs2(use_rs2)
-
-    // .prev_rd_addr(rd_addr_ex),
-    // .prev_writeback(writeback_en_ex),
-    // .prev2_rd_addr(rd_addr_m),
-    // .prev2_writeback(writeback_en_m),
-    // .prev3_rd_addr(rd_addr_wb),
-    // .prev3_writeback(writeback_en_wb),
-
-    // .rs1_alu_loopback(rs1_alu_loopback_id),
-    // .rs2_alu_loopback(rs2_alu_loopback_id),
-    // .rs1_take_prev2(rs1_take_prev2),
-    // .rs2_take_prev2(rs2_take_prev2),
-    // .rs1_take_prev3(rs1_take_prev3),
-    // .rs2_take_prev3(rs2_take_prev3)
 );
 
 logic [31:0] rs1_reg;
@@ -126,6 +106,16 @@ registers registers(
     .clk(clk)
 );
 
+wire rs1_take_mem;
+wire rs1_take_prev1_id; // needs to be passed to ex
+wire rs1_take_prev2;
+wire rs1_take_prev3;
+
+wire rs2_take_mem;
+wire rs2_take_prev1_id;
+wire rs2_take_prev2;
+wire rs2_take_prev3;
+
 wire [31:0] rs1_id = rs1_take_prev2 ? rd_m : (rs1_take_prev3 ? rd_wb : rs1_reg); //todo: more idiomatic way of doing 3-way priority?
 wire [31:0] rs2_id = rs2_take_prev2 ? rd_m : (rs2_take_prev3 ? rd_wb : rs2_reg); //todo: priority delay stacks with reg read delay; figure out if it should be here or in alu
 
@@ -136,29 +126,29 @@ forwarding forwarding(
     .use_rs1(use_rs1),
     .use_rs2(use_rs2),
 
-    .prev1_write(),
-    .prev2_write(),
-    .prev3_write(),
+    .prev1_write(writeback_en_ex),
+    .prev2_write(writeback_en_m),
+    .prev3_write(writeback_en_wb),
 
-    .prev1_write_addr(),
-    .prev2_write_addr(),
-    .prev3_write_addr(),
+    .prev1_write_addr(rd_addr_ex),
+    .prev2_write_addr(rd_addr_m),
+    .prev3_write_addr(rd_addr_wb),
 
-    .prev1_mem(),
-    .prev2_mem(),
-    .prev3_mem(),
+    .prev1_mem(writeback_from_mem_ex),
+    .prev2_mem(writeback_from_mem_m),
+    .prev3_mem(writeback_from_mem_wb),
 
     .skip_instr(),
 
-    .rs1_take_mem(),
-    .rs1_take_prev1(),
-    .rs1_take_prev2(),
-    .rs1_take_prev3(),
+    .rs1_take_mem(rs1_take_mem),
+    .rs1_take_prev1(rs1_take_prev1_id),
+    .rs1_take_prev2(rs1_take_prev2),
+    .rs1_take_prev3(rs1_take_prev3),
 
-    .rs2_take_mem(),
-    .rs2_take_prev1(),
-    .rs2_take_prev2(),
-    .rs2_take_prev3()
+    .rs2_take_mem(rs2_take_mem),
+    .rs2_take_prev1(rs2_take_prev1_id),
+    .rs2_take_prev2(rs2_take_prev2),
+    .rs2_take_prev3(rs2_take_prev3)
 );
 
 
@@ -176,9 +166,10 @@ logic xor_en_ex;
 logic or_en_ex;
 logic and_en_ex;
 logic writeback_en_ex;
+logic writeback_from_mem_ex;
 
-logic rs1_alu_loopback_ex;
-logic rs2_alu_loopback_ex;
+logic rs1_take_prev1_ex;
+logic rs2_take_prev1_ex;
 
 id_ex id_ex(
     .rd_addr_in(rd_addr_id),
@@ -191,9 +182,10 @@ id_ex id_ex(
     .xor_en_in(xor_en_id),
     .or_en_in(xor_en_id),
     .and_en_in(and_en_id),
-    .rs1_alu_loopback_in(rs1_alu_loopback_id),
-    .rs2_alu_loopback_in(rs2_alu_loopback_id),
+    .rs1_take_prev1_in(rs1_take_prev1_id),
+    .rs2_take_prev1_in(rs2_take_prev1_id),
     .writeback_en_in(writeback_en_id),
+    .writeback_from_mem_in(writeback_from_mem_id),
 
     .rd_addr_out(rd_addr_ex),
     .rs1_out(rs1_ex),
@@ -205,9 +197,10 @@ id_ex id_ex(
     .xor_en_out(xor_en_ex),
     .or_en_out(or_en_ex),
     .and_en_out(and_en_ex),
-    .rs1_alu_loopback_out(rs1_alu_loopback_ex),
-    .rs2_alu_loopback_out(rs2_alu_loopback_ex),
+    .rs1_take_prev1_out(rs1_take_prev1_ex),
+    .rs2_take_prev1_out(rs2_take_prev1_ex),
     .writeback_en_out(writeback_en_ex),
+    .writeback_from_mem_out(writeback_from_mem_ex),
 
     .clk(clk),
     .rst(rst)
@@ -218,9 +211,9 @@ id_ex id_ex(
 
 logic [31:0] alu_out;
 
-wire[31:0] alu_in_1 = rs1_alu_loopback_ex ? rd_m : rs1_ex;
+wire[31:0] alu_in_1 = rs1_take_prev1_ex ? rd_m : rs1_ex;
 
-wire[31:0] alu_in_2_maybe_loopback = rs2_alu_loopback_ex ? rd_m : rs2_ex;
+wire[31:0] alu_in_2_maybe_loopback = rs2_take_prev1_ex ? rd_m : rs2_ex;
 wire[31:0] alu_in_2 = alu_rs2_reg_ex ? alu_in_2_maybe_loopback : imm_ex; 
 
 alu alu(
@@ -241,15 +234,18 @@ alu alu(
 logic [4:0] rd_addr_m;
 logic [31:0] rd_m;
 logic writeback_en_m;
+logic writeback_from_mem_m;
 
 ex_m ex_m(
     .rd_addr_in(rd_addr_ex),
     .rd_in(alu_out),
     .writeback_en_in(writeback_en_ex),
+    .writeback_from_mem_in(writeback_from_mem_ex),
 
     .rd_addr_out(rd_addr_m),
     .rd_out(rd_m),
     .writeback_en_out(writeback_en_m),
+    .writeback_from_mem_out(writeback_from_mem_m),
 
     .clk(clk),
     .rst(rst)
@@ -270,15 +266,18 @@ memory memory(
 logic [4:0] rd_addr_wb;
 logic [31:0] rd_wb;
 logic writeback_en_wb;
+logic writeback_from_mem_wb;
 
 m_wb m_wb(
     .rd_addr_in(rd_addr_m),
     .rd_in(rd_m),
     .writeback_en_in(writeback_en_m),
+    .writeback_from_mem_in(writeback_from_mem_m),
 
     .rd_addr_out(rd_addr_wb),
     .rd_out(rd_wb),
     .writeback_en_out(writeback_en_wb),
+    .writeback_from_mem_out(writeback_from_mem_wb),
 
     .clk(clk),
     .rst(rst)

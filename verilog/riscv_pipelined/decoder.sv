@@ -18,9 +18,10 @@ module decoder (
     output or_en,
     output and_en,
 
-    output writeback_en,
-    output use_rs1,
-    output use_rs2
+    output logic writeback_en,
+    output logic writeback_from_mem,
+    output logic use_rs1,
+    output logic use_rs2
 );
 
 assign rs1_addr = instr[19:15];
@@ -41,60 +42,71 @@ assign and_en = funct3 == 3'h7;
 
 assign imm = {20'b0, instr[31:20]};
 
-always @(*) begin
+always_comb begin
     case(opcode)
         7'b0110011: begin //add etc.
             writeback_en = 1;
+            writeback_from_mem = 0;
             use_rs1 = 1;
             use_rs2 = 1;
         end
         7'b0010011: begin //addi etc.
             writeback_en = 1;
+            writeback_from_mem = 0;
             use_rs1 = 1;
             use_rs2 = 0;
         end
         7'b0000011: begin //lb etc.
             writeback_en = 1;
+            writeback_from_mem = 1;
             use_rs1 = 1;
             use_rs2 = 0;
         end
         7'b0100011: begin //sb etc.
             writeback_en = 0;
+            writeback_from_mem = 0; //todo: investigate whether don't cares work here
             use_rs1 = 1;
             use_rs2 = 1;
         end
         7'b1100011: begin //beq etc.
             writeback_en = 0;
+            writeback_from_mem = 0;
             use_rs1 = 1;
             use_rs2 = 1;
         end
         7'b1101111: begin //jal
             writeback_en = 1;
+            writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
         end
         7'b1100111: begin //jalr
             writeback_en = 0;
+            writeback_from_mem = 0;
             use_rs1 = 1;
             use_rs2 = 0;
         end
         7'b0110111: begin //lui
             writeback_en = 1;
+            writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
         end
         7'b0010111: begin //auipc
             writeback_en = 1;
+            writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
         end
         7'b1110011: begin //ecall, ebreak
             writeback_en = 0;
+            writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
         end
         default: begin //instruction error
             writeback_en = 0;
+            writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
         end

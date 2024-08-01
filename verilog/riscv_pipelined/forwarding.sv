@@ -109,7 +109,7 @@ wire reg_take_prev1 = prev1_write_addr == reg_addr && prev1_write;
 wire reg_take_prev2 = prev2_write_addr == reg_addr && prev2_write && !reg_take_prev1;
 wire reg_take_prev3 = prev3_write_addr == reg_addr && prev3_write && !reg_take_prev2; //todo: better way to do priority?
 
-assign skip_instr = reg_prev1_conflict && prev1_mem;
+assign skip_instr = reg_take_prev1 && prev1_mem;
 
 assign reg_take_mem = //todo: long combinational
     reg_take_prev1 && prev1_mem ||
