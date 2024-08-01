@@ -14,6 +14,7 @@ module id_ex(
     input logic or_en_in,
     input logic and_en_in,
 
+    input logic skip_instr_in,
     input logic rs1_take_prev1_in,
     input logic rs2_take_prev1_in,
 
@@ -33,6 +34,7 @@ module id_ex(
     output logic or_en_out,
     output logic and_en_out,
 
+    output logic skip_instr_out,
     output logic rs1_take_prev1_out,
     output logic rs2_take_prev1_out,
 
@@ -50,6 +52,7 @@ always @(posedge clk) begin
 
         alu_rs2_reg_out <= alu_rs2_reg_in;
 
+        skip_instr_out <= skip_instr_in;
         rs1_take_prev1_out <= rs1_take_prev1_in;
         rs2_take_prev1_out <= rs2_take_prev1_in;
 
@@ -70,6 +73,7 @@ always @(posedge clk) begin
 
         alu_rs2_reg_out <= 0;
 
+        skip_instr_out <= 0;
         rs1_take_prev1_out <= 0;
         rs2_take_prev1_out <= 0;
 

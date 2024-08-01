@@ -7,8 +7,6 @@ module datapath (
 logic [31:0] pc;
 logic broken;
 
-
-
 // ################################################################
 // begin instruction fetch
 // ################################################################
@@ -26,7 +24,7 @@ always @(posedge clk) begin
         pc <= 0;
         broken <= 0;
     end else begin
-        pc <= pc + 4;
+        pc <= skip_instr_id ? pc : pc + 4;
         broken <= broken || instr_if == 32'h00100073;
     end
 end
@@ -106,6 +104,8 @@ registers registers(
     .clk(clk)
 );
 
+wire skip_instr_id;
+
 wire rs1_take_mem;
 wire rs1_take_prev1_id; // needs to be passed to ex
 wire rs1_take_prev2;
@@ -138,7 +138,7 @@ forwarding forwarding(
     .prev2_mem(writeback_from_mem_m),
     .prev3_mem(writeback_from_mem_wb),
 
-    .skip_instr(),
+    .skip_instr(skip_instr_id),
 
     .rs1_take_mem(rs1_take_mem),
     .rs1_take_prev1(rs1_take_prev1_id),
@@ -165,6 +165,9 @@ logic sub_en_ex;
 logic xor_en_ex;
 logic or_en_ex;
 logic and_en_ex;
+
+logic skip_instr_ex;
+
 logic writeback_en_ex;
 logic writeback_from_mem_ex;
 
@@ -182,6 +185,7 @@ id_ex id_ex(
     .xor_en_in(xor_en_id),
     .or_en_in(xor_en_id),
     .and_en_in(and_en_id),
+    .skip_instr_in(skip_instr_id),
     .rs1_take_prev1_in(rs1_take_prev1_id),
     .rs2_take_prev1_in(rs2_take_prev1_id),
     .writeback_en_in(writeback_en_id),
@@ -197,6 +201,7 @@ id_ex id_ex(
     .xor_en_out(xor_en_ex),
     .or_en_out(or_en_ex),
     .and_en_out(and_en_ex),
+    .skip_instr_out(skip_instr_ex),
     .rs1_take_prev1_out(rs1_take_prev1_ex),
     .rs2_take_prev1_out(rs2_take_prev1_ex),
     .writeback_en_out(writeback_en_ex),
@@ -247,6 +252,7 @@ ex_m ex_m(
     .writeback_en_out(writeback_en_m),
     .writeback_from_mem_out(writeback_from_mem_m),
 
+    .skip(skip_instr_ex),
     .clk(clk),
     .rst(rst)
 );
@@ -279,6 +285,7 @@ m_wb m_wb(
     .writeback_en_out(writeback_en_wb),
     .writeback_from_mem_out(writeback_from_mem_wb),
 
+    .skip(skip_instr_ex),
     .clk(clk),
     .rst(rst)
 );
@@ -287,9 +294,11 @@ m_wb m_wb(
 // begin writeback
 // ################################################################
 
+// todo: these shouldn't be an issue on skip_instr because m_wb won't update; verify this   
 assign reg_write_addr = rd_addr_wb;
 assign reg_write_val = rd_wb;
 assign reg_write_en = 1;
+
 
 
 endmodule

@@ -9,16 +9,19 @@ module m_wb(
     output logic writeback_en_out,
     output logic writeback_from_mem_out,
 
+    input skip,
     input clk,
     input rst
 );
 
 always @(posedge clk) begin
     if(!rst) begin
-        rd_addr_out <= rd_addr_in;
-        rd_out <= rd_in;
-        writeback_en_out <= writeback_en_in;
-        writeback_from_mem_out <= writeback_from_mem_in;
+        if(!skip) begin
+            rd_addr_out <= rd_addr_in;
+            rd_out <= rd_in;
+            writeback_en_out <= writeback_en_in;
+            writeback_from_mem_out <= writeback_from_mem_in;
+        end
     end else begin
         rd_addr_out <= 5'h0;
         rd_out <= 32'h0;
