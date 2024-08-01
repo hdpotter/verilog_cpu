@@ -17,16 +17,16 @@ module alu(
     input [31:0] arg1,
     input [31:0] arg2,
 
-    output logic [31:0] out
+    output logic [31:0] result
 );
     always @(*) begin
         // todo: should be unique if
-        if(add_en) out = arg1 + arg2; //todo: look into mux optimizations
-        else if(sub_en) out = arg1 - arg2;
-        else if(xor_en) out = arg1 ^ arg2;
-        else if(or_en) out = arg1 | arg2;
-        else if(and_en) out = arg1 & arg2;
-        else out = 32'b0;
+        if(add_en) result = arg1 + arg2; //todo: look into mux optimizations
+        else if(sub_en) result = arg1 - arg2;
+        else if(xor_en) result = arg1 ^ arg2;
+        else if(or_en) result = arg1 | arg2;
+        else if(and_en) result = arg1 & arg2;
+        else result = 32'b0;
     end
 
 endmodule

@@ -214,7 +214,7 @@ id_ex id_ex(
 // begin execute
 // ################################################################
 
-logic [31:0] alu_out;
+logic [31:0] alu_result_ex;
 
 wire[31:0] alu_in_1 = rs1_take_prev1_ex ? rd_m : rs1_ex;
 
@@ -230,25 +230,25 @@ alu alu(
 
     .arg1(alu_in_1),
     .arg2(alu_in_2),
-    .out(alu_out)
+    .result(alu_result_ex)
 );
 
 // ################################################################
 // end execute
 
 logic [4:0] rd_addr_m;
-logic [31:0] rd_m;
+logic [31:0] alu_result_m;
 logic writeback_en_m;
 logic writeback_from_mem_m;
 
 ex_m ex_m(
     .rd_addr_in(rd_addr_ex),
-    .rd_in(alu_out),
+    .alu_result_in(alu_result_ex),
     .writeback_en_in(writeback_en_ex),
     .writeback_from_mem_in(writeback_from_mem_ex),
 
     .rd_addr_out(rd_addr_m),
-    .rd_out(rd_m),
+    .alu_result_out(alu_result_m),
     .writeback_en_out(writeback_en_m),
     .writeback_from_mem_out(writeback_from_mem_m),
 
@@ -260,9 +260,22 @@ ex_m ex_m(
 // begin memory
 // ################################################################
 
+wire [31:0] mem_out;
 
 memory memory(
+    .addr(alu_result_m),
+    .value(),
+    .funct3(3'd2), //lw
+
+    .read(writeback_from_mem_m),
+    .write(1'b0),
+
+    .data(mem_out),
+
+    .clk(clk)
 );
+
+wire [31:0] rd_m = writeback_from_mem_m ? mem_out : alu_result_m;
 
 
 
