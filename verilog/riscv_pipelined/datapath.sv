@@ -264,7 +264,7 @@ wire [31:0] mem_out;
 
 memory memory(
     .addr(alu_result_m),
-    .value(),
+    .value(32'h0),
     .funct3(3'd2), //lw
 
     .read(writeback_from_mem_m),

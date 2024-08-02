@@ -73,15 +73,18 @@ class CPU:
         await self.setup_execution()
 
         breakout = False
+        last = 0
         for i in range(n):
             if self.dut.broken.value:
                 breakout = True
+                last = i
                 break
 
             if trace:
                 print("pc_" + str(i).ljust(math.ceil(math.log(n, 10))) + ": " + str(int(self.dut.pc.value.integer/4)))
 
             if print_pipeline:
+                print("cycle " + str(i) + "  ================================================================")
                 self.print_pipeline()
 
             await self.clock()
@@ -96,6 +99,7 @@ class CPU:
                 print("pc_" + str(i).ljust(math.ceil(math.log(n, 10))) + ": " + str(int(self.dut.pc.value.integer/4)))
 
             if print_pipeline:
+                print("cycle " + str(last + i) + "  ================================================================")
                 self.print_pipeline()
 
             await self.clock()
@@ -117,11 +121,30 @@ class CPU:
         for i in range(n):
             print("  " + str(i) + ": " + str(self.dut.instruction_memory.memory[i].value))
 
+    def print_first_mem(self, n):
+        print("memory")
+        for i in range(n):
+            print("  " + str(i) + ": " + str(self.dut.memory.mem[i].value))
+
     def memory(self, n):
         return self.dut.memory.mem[n].value
     
     def set_memory(self, n, value):
         self.dut.memory.mem[n].value = value
+
+    async def set_memory_word(self, n, value):
+        base_addr = n
+        byte0 = (value // pow(256, 0)) % 256 #double slash for integer division
+        byte1 = (value // pow(256, 1)) % 256
+        byte2 = (value // pow(256, 2)) % 256
+        byte3 = (value // pow(256, 3)) % 256
+
+        self.dut.memory.mem[base_addr + 0].value = byte0
+        self.dut.memory.mem[base_addr + 1].value = byte1
+        self.dut.memory.mem[base_addr + 2].value = byte2
+        self.dut.memory.mem[base_addr + 3].value = byte3
+
+        await self.wait(2)
 
     async def clear_first_memory(self, n):
         for i in range(n):
@@ -130,7 +153,6 @@ class CPU:
 
 
     def print_pipeline(self):
-        print()
         print("pipeline; pc = " + str(self.dut.pc.value))
         print("broken: " + str(self.dut.broken.value))
         self.print_if()
@@ -139,6 +161,7 @@ class CPU:
         self.print_m()
         self.print_wb()
         self.print_aux()
+        print()
 
 
     def print_if(self):
@@ -162,45 +185,40 @@ class CPU:
         print("    xor_en: " + str(self.dut.id_ex.xor_en_out.value))
         print("    or_en: " + str(self.dut.id_ex.or_en_out.value))
         print("    and_en: " + str(self.dut.id_ex.and_en_out.value))
-        print("    rs1_alu_loopback: " + str(self.dut.id_ex.rs1_alu_loopback_out.value))
-        print("    rs2_alu_loopback: " + str(self.dut.id_ex.rs2_alu_loopback_out.value))
-    
+        print("    writeback_en: " + str(self.dut.id_ex.writeback_en_out.value))
+        print("    writeback_from_mem: " + str(self.dut.id_ex.writeback_from_mem_out.value))
+
     def print_m(self):
         print("  m:")
         print("    rd_addr: " + str(self.dut.ex_m.rd_addr_out.value))
-        print("    rd: " + str(self.dut.ex_m.rd_out.value))
+        print("    alu_result: " + str(self.dut.ex_m.alu_result_out.value))
+        print("    writeback_en: " + str(self.dut.ex_m.writeback_en_out.value))
+        print("    writeback_from_mem: " + str(self.dut.ex_m.writeback_from_mem_out.value))
 
     def print_wb(self):
         print("  wb:")
         print("    rd_addr: " + str(self.dut.m_wb.rd_addr_out.value))
         print("    rd: " + str(self.dut.m_wb.rd_out.value))
+        print("    writeback_en: " + str(self.dut.m_wb.writeback_en_out.value))
+        print("    writeback_from_mem: " + str(self.dut.m_wb.writeback_from_mem_out.value))
     
     def print_aux(self):
         print("  aux:")
-        print("    rs1_alu_loopback_ex: " + str(self.dut.rs1_alu_loopback_ex.value))
-        print("    alu.arg1: " + str(self.dut.alu.arg1.value))
-        print("    alu.arg2: " + str(self.dut.alu.arg2.value))
+        print("    skip_instr_id: " + str(self.dut.skip_instr_id.value))
+        print("    skip_instr_ex: " + str(self.dut.skip_instr_ex.value))
+        # print("    alu.arg1: " + str(self.dut.alu.arg1.value))
+        # print("    alu.arg2: " + str(self.dut.alu.arg2.value))
         # print("    rd_addr_ex: " + str(self.dut.rd_addr_ex.value))
         # print("    alu_out: " + str(self.dut.alu_out.value))
         # print("    rd_addr_m: " + str(self.dut.rd_addr_m.value))
         # print("    rd_m: " + str(self.dut.rd_m.value))
         # print("    ex_m.rd_addr_in: " + str(self.dut.ex_m.rd_addr_in.value))
         # print("    ex_m.rd_addr_out: " + str(self.dut.ex_m.rd_addr_out.value))
-        print("    decoder.prev_writeback: " + str(self.dut.decoder.prev_writeback.value))
-        print("    decoder.prev_rd_addr: " + str(self.dut.decoder.prev_rd_addr.value))
-        print("    decoder.rs1_addr: " + str(self.dut.decoder.rs1_addr.value))
         
-        print("    alu_in_2_maybe_loopback: " + str(self.dut.alu_in_2_maybe_loopback.value))
-        print("    rs2_alu_loopback_ex: " + str(self.dut.rs2_alu_loopback_ex.value))
-        print("    rd_m: " + str(self.dut.rd_m.value))
-        print("    rs2_ex: " + str(self.dut.rs2_ex.value))
-        print("    alu_in_2: " + str(self.dut.alu_in_2.value))
-        print("    alu_rs2_reg_ex: " + str(self.dut.alu_rs2_reg_ex.value))
-        print("    imm_ex: " + str(self.dut.imm_ex.value))
-
-        print("    decoder.rs2_alu_loopback: " + str(self.dut.decoder.rs2_alu_loopback.value))
-        print("    decoder.prev_writeback: " + str(self.dut.decoder.prev_writeback.value))
-        print("    decoder.prev_rd_addr: " + str(self.dut.decoder.prev_rd_addr.value))
-        print("    decoder.rs2_addr: " + str(self.dut.decoder.rs2_addr.value))
-        print("    decoder.instr: " + str(self.dut.decoder.instr.value))
+        # print("    alu_in_2_maybe_loopback: " + str(self.dut.alu_in_2_maybe_loopback.value))
+        # print("    rd_m: " + str(self.dut.rd_m.value))
+        # print("    rs2_ex: " + str(self.dut.rs2_ex.value))
+        # print("    alu_in_2: " + str(self.dut.alu_in_2.value))
+        # print("    alu_rs2_reg_ex: " + str(self.dut.alu_rs2_reg_ex.value))
+        # print("    imm_ex: " + str(self.dut.imm_ex.value))
 
