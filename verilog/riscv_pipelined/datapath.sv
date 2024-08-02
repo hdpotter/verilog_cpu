@@ -207,6 +207,7 @@ id_ex id_ex(
     .writeback_en_out(writeback_en_ex),
     .writeback_from_mem_out(writeback_from_mem_ex),
 
+    .skip(skip_instr_ex),
     .clk(clk),
     .rst(rst)
 );

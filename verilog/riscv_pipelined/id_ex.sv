@@ -38,32 +38,34 @@ module id_ex(
     output logic rs1_take_prev1_out,
     output logic rs2_take_prev1_out,
 
+    input skip,
     input clk,
     input rst
 );
 
 always @(posedge clk) begin
     if(!rst) begin
-        rd_addr_out <= rd_addr_in;
-        rs1_out <= rs1_in;
-        rs2_out <= rs2_in;
-        writeback_en_out <= writeback_en_in;
-        writeback_from_mem_out <= writeback_from_mem_in;
+        if(!skip) begin
+            rd_addr_out <= rd_addr_in;
+            rs1_out <= rs1_in;
+            rs2_out <= rs2_in;
+            writeback_en_out <= writeback_en_in;
+            writeback_from_mem_out <= writeback_from_mem_in;
 
-        alu_rs2_reg_out <= alu_rs2_reg_in;
+            alu_rs2_reg_out <= alu_rs2_reg_in;
 
-        skip_instr_out <= skip_instr_in;
-        rs1_take_prev1_out <= rs1_take_prev1_in;
-        rs2_take_prev1_out <= rs2_take_prev1_in;
+            rs1_take_prev1_out <= rs1_take_prev1_in;
+            rs2_take_prev1_out <= rs2_take_prev1_in;
 
-        add_en_out <= add_en_in;
-        sub_en_out <= sub_en_in;
-        xor_en_out <= xor_en_in;
-        or_en_out <= or_en_in;
-        and_en_out <= and_en_in;
+            add_en_out <= add_en_in;
+            sub_en_out <= sub_en_in;
+            xor_en_out <= xor_en_in;
+            or_en_out <= or_en_in;
+            and_en_out <= and_en_in;
 
-        imm_out <= imm_in;
-        
+            imm_out <= imm_in;
+        end
+        skip_instr_out <= skip_instr_in; //gets propagated even on skip
     end else begin
         rd_addr_out <= 5'd0;
         rs1_out <= 32'h0;
