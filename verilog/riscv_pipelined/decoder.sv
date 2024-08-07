@@ -17,6 +17,10 @@ module decoder (
     output xor_en,
     output or_en,
     output and_en,
+    output eq_en,
+
+    output jump_on_alu_true,
+    output jump_always,
 
     output logic writeback_en,
     output logic writeback_from_mem,
@@ -34,11 +38,19 @@ assign funct7 = instr[31:25];
 
 assign alu_rs2_reg = opcode[5];
 
-assign add_en = funct3 == 3'h0 && !sub_en; //todo: how to handle this
-assign sub_en = funct3 == 3'h0 && funct7 == 7'h20;
-assign xor_en = funct3 == 3'h4;
-assign or_en = funct3 == 3'h6;
-assign and_en = funct3 == 3'h7;
+logic arith_en;
+logic cond_en;
+
+assign add_en = arith_en && funct3 == 3'h0 && !sub_en; //todo: how to handle this
+assign sub_en = arith_en && funct3 == 3'h0 && funct7 == 7'h20;
+assign xor_en = arith_en && funct3 == 3'h4;
+assign or_en = arith_en && funct3 == 3'h6;
+assign and_en = arith_en && funct3 == 3'h7;
+
+assign eq_en = cond_en && funct3 == 3'h0;
+
+assign branch_on_alu_true = opcode == 7'b1100011;
+assign jump_always = opcode == 7'b1101111 || opcode == 7'b1100111;
 
 assign imm = {20'b0, instr[31:20]};
 
@@ -49,66 +61,110 @@ always_comb begin
             writeback_from_mem = 0;
             use_rs1 = 1;
             use_rs2 = 1;
+
+            arith_en = 1;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
         7'b0010011: begin //addi etc.
             writeback_en = 1;
             writeback_from_mem = 0;
             use_rs1 = 1;
             use_rs2 = 0;
+
+            arith_en = 1;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
         7'b0000011: begin //lb etc.
             writeback_en = 1;
             writeback_from_mem = 1;
             use_rs1 = 1;
             use_rs2 = 0;
+
+            arith_en = 1;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
         7'b0100011: begin //sb etc.
             writeback_en = 0;
             writeback_from_mem = 0; //todo: investigate whether don't cares work here
             use_rs1 = 1;
             use_rs2 = 1;
+
+            arith_en = 1;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
         7'b1100011: begin //beq etc.
             writeback_en = 0;
             writeback_from_mem = 0;
             use_rs1 = 1;
             use_rs2 = 1;
+
+            arith_en = 0;
+            cond_en = 1;
+            branch_on_alu_true = 1;
         end
         7'b1101111: begin //jal
             writeback_en = 1;
             writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
+
+            arith_en = 1;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
         7'b1100111: begin //jalr
             writeback_en = 0;
             writeback_from_mem = 0;
             use_rs1 = 1;
             use_rs2 = 0;
+
+            arith_en = 1;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
         7'b0110111: begin //lui
             writeback_en = 1;
             writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
+
+            arith_en = 0;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
         7'b0010111: begin //auipc
             writeback_en = 1;
             writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
+
+            arith_en = 1;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
         7'b1110011: begin //ecall, ebreak
             writeback_en = 0;
             writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
+
+            arith_en = 0;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
         default: begin //instruction error
             writeback_en = 0;
             writeback_from_mem = 0;
             use_rs1 = 0;
             use_rs2 = 0;
+
+            arith_en = 0;
+            cond_en = 0;
+            branch_on_alu_true = 0;
         end
     endcase
 end

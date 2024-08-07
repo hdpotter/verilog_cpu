@@ -19,12 +19,17 @@ instruction_memory instruction_memory(
     .broken(broken)
 );
 
+wire pc_imm = pc + imm_ex;
+wire jump = jump_always_ex | (jump_on_alu_true_ex & alu_result_ex[0]); //todo: verify understanding of boolean output to 32-bit type
+
 always @(posedge clk) begin
     if(rst) begin
         pc <= 0;
         broken <= 0;
     end else begin
-        pc <= skip_instr_id ? pc : pc + 4;
+        if(jump) pc <= pc_imm; //todo: better mux
+        else if (!skip_instr_id) pc <= pc + 4;
+
         broken <= broken || instr_if == 32'h00100073;
     end
 end
@@ -38,7 +43,7 @@ if_id if_id(
     .instr_in(instr_if),
     .instr_out(instr_id),
     .clk(clk),
-    .rst(rst)
+    .rst(rst | jump)
 );
 
 // begin instruction decode
@@ -55,6 +60,7 @@ logic sub_en_id;
 logic xor_en_id;
 logic or_en_id;
 logic and_en_id;
+logic eq_en_id;
 logic [31:0] imm_id;
 
 logic writeback_en_id;
@@ -74,6 +80,10 @@ decoder decoder(
     .xor_en(xor_en_id),
     .or_en(or_en_id),
     .and_en(and_en_id),
+    .eq_en(eq_en_id),
+
+    .jump_on_alu_true(jump_on_alu_true_id),
+    .jump_always(jump_always_id),
 
     .imm(imm_id),
 
@@ -165,6 +175,7 @@ logic sub_en_ex;
 logic xor_en_ex;
 logic or_en_ex;
 logic and_en_ex;
+logic eq_en_ex;
 
 logic skip_instr_ex;
 
@@ -173,6 +184,9 @@ logic writeback_from_mem_ex;
 
 logic rs1_take_prev1_ex;
 logic rs2_take_prev1_ex;
+
+logic jump_on_alu_true_ex;
+logic jump_always_ex;
 
 id_ex id_ex(
     .rd_addr_in(rd_addr_id),
@@ -185,11 +199,14 @@ id_ex id_ex(
     .xor_en_in(xor_en_id),
     .or_en_in(xor_en_id),
     .and_en_in(and_en_id),
+    .eq_en_in(eq_en_id),
     .skip_instr_in(skip_instr_id),
     .rs1_take_prev1_in(rs1_take_prev1_id),
     .rs2_take_prev1_in(rs2_take_prev1_id),
     .writeback_en_in(writeback_en_id),
     .writeback_from_mem_in(writeback_from_mem_id),
+    .jump_on_alu_true_in(jump_on_alu_true_id),
+    .jump_always_in(jump_always_id),
 
     .rd_addr_out(rd_addr_ex),
     .rs1_out(rs1_ex),
@@ -201,15 +218,18 @@ id_ex id_ex(
     .xor_en_out(xor_en_ex),
     .or_en_out(or_en_ex),
     .and_en_out(and_en_ex),
+    .eq_en_out(eq_en_ex),
     .skip_instr_out(skip_instr_ex),
     .rs1_take_prev1_out(rs1_take_prev1_ex),
     .rs2_take_prev1_out(rs2_take_prev1_ex),
     .writeback_en_out(writeback_en_ex),
     .writeback_from_mem_out(writeback_from_mem_ex),
+    .jump_on_alu_true_out(jump_on_alu_true_ex),
+    .jump_always_out(jump_always_ex),
 
     .skip(skip_instr_ex),
     .clk(clk),
-    .rst(rst)
+    .rst(rst | jump)
 );
 
 // begin execute
@@ -228,6 +248,7 @@ alu alu(
     .xor_en(xor_en_ex),
     .or_en(or_en_ex),
     .and_en(and_en_ex),
+    .eq_en(eq_en_ex),
 
     .arg1(alu_in_1),
     .arg2(alu_in_2),

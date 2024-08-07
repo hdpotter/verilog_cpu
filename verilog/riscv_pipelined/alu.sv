@@ -13,6 +13,7 @@ module alu(
     input xor_en,
     input or_en,
     input and_en,
+    input eq_en,
 
     input [31:0] arg1,
     input [31:0] arg2,
@@ -26,6 +27,7 @@ module alu(
         else if(xor_en) result = arg1 ^ arg2;
         else if(or_en) result = arg1 | arg2;
         else if(and_en) result = arg1 & arg2;
+        else if (eq_en) result = arg1 == arg2;
         else result = 32'b0;
     end
 

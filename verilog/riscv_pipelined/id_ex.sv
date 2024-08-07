@@ -13,10 +13,14 @@ module id_ex(
     input logic xor_en_in,
     input logic or_en_in,
     input logic and_en_in,
+    input logic eq_en_in,
 
     input logic skip_instr_in,
     input logic rs1_take_prev1_in,
     input logic rs2_take_prev1_in,
+
+    input logic jump_on_alu_true_in,
+    input logic jump_always_in,
 
 
     output logic [4:0] rd_addr_out,
@@ -33,10 +37,14 @@ module id_ex(
     output logic xor_en_out,
     output logic or_en_out,
     output logic and_en_out,
+    output logic eq_en_out,
 
     output logic skip_instr_out,
     output logic rs1_take_prev1_out,
     output logic rs2_take_prev1_out,
+
+    output logic jump_on_alu_true_out,
+    output logic jump_always_out,
 
     input skip,
     input clk,
@@ -56,6 +64,9 @@ always @(posedge clk) begin
 
             rs1_take_prev1_out <= rs1_take_prev1_in;
             rs2_take_prev1_out <= rs2_take_prev1_in;
+
+            jump_on_alu_true_out <= jump_on_alu_true_in;
+            jump_always_out <= jump_always_in;
 
             add_en_out <= add_en_in;
             sub_en_out <= sub_en_in;
@@ -78,6 +89,9 @@ always @(posedge clk) begin
         skip_instr_out <= 0;
         rs1_take_prev1_out <= 0;
         rs2_take_prev1_out <= 0;
+
+        jump_on_alu_true <= 0;
+        jump_always <= 0;
 
         add_en_out <= 1;
         sub_en_out <= 0;
