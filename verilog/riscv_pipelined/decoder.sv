@@ -49,7 +49,7 @@ assign and_en = arith_en && funct3 == 3'h7;
 
 assign eq_en = cond_en && funct3 == 3'h0;
 
-assign branch_on_alu_true = opcode == 7'b1100011;
+assign jump_on_alu_true = opcode == 7'b1100011;
 assign jump_always = opcode == 7'b1101111 || opcode == 7'b1100111;
 
 assign imm = {20'b0, instr[31:20]};
@@ -64,7 +64,6 @@ always_comb begin
 
             arith_en = 1;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
         7'b0010011: begin //addi etc.
             writeback_en = 1;
@@ -74,7 +73,6 @@ always_comb begin
 
             arith_en = 1;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
         7'b0000011: begin //lb etc.
             writeback_en = 1;
@@ -84,7 +82,6 @@ always_comb begin
 
             arith_en = 1;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
         7'b0100011: begin //sb etc.
             writeback_en = 0;
@@ -94,7 +91,6 @@ always_comb begin
 
             arith_en = 1;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
         7'b1100011: begin //beq etc.
             writeback_en = 0;
@@ -104,7 +100,6 @@ always_comb begin
 
             arith_en = 0;
             cond_en = 1;
-            branch_on_alu_true = 1;
         end
         7'b1101111: begin //jal
             writeback_en = 1;
@@ -114,7 +109,6 @@ always_comb begin
 
             arith_en = 1;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
         7'b1100111: begin //jalr
             writeback_en = 0;
@@ -124,7 +118,6 @@ always_comb begin
 
             arith_en = 1;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
         7'b0110111: begin //lui
             writeback_en = 1;
@@ -134,7 +127,6 @@ always_comb begin
 
             arith_en = 0;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
         7'b0010111: begin //auipc
             writeback_en = 1;
@@ -144,7 +136,6 @@ always_comb begin
 
             arith_en = 1;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
         7'b1110011: begin //ecall, ebreak
             writeback_en = 0;
@@ -154,7 +145,6 @@ always_comb begin
 
             arith_en = 0;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
         default: begin //instruction error
             writeback_en = 0;
@@ -164,7 +154,6 @@ always_comb begin
 
             arith_en = 0;
             cond_en = 0;
-            branch_on_alu_true = 0;
         end
     endcase
 end

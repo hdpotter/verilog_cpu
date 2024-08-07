@@ -90,8 +90,8 @@ always @(posedge clk) begin
         rs1_take_prev1_out <= 0;
         rs2_take_prev1_out <= 0;
 
-        jump_on_alu_true <= 0;
-        jump_always <= 0;
+        jump_on_alu_true_out <= 0;
+        jump_always_out <= 0;
 
         add_en_out <= 1;
         sub_en_out <= 0;
