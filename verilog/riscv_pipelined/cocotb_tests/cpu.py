@@ -69,7 +69,7 @@ class CPU:
 
 
 
-    async def execute(self, n=64, trace=False, print_pipeline = False, end_in_middle=False):
+    async def execute(self, n=16, trace=False, print_pipeline = False, end_in_middle=False):
         await self.setup_execution()
 
         breakout = False
@@ -185,6 +185,7 @@ class CPU:
         print("    xor_en: " + str(self.dut.id_ex.xor_en_out.value))
         print("    or_en: " + str(self.dut.id_ex.or_en_out.value))
         print("    and_en: " + str(self.dut.id_ex.and_en_out.value))
+        print("    eq_en: " + str(self.dut.id_ex.eq_en_out.value))
         print("    writeback_en: " + str(self.dut.id_ex.writeback_en_out.value))
         print("    writeback_from_mem: " + str(self.dut.id_ex.writeback_from_mem_out.value))
 
@@ -221,4 +222,10 @@ class CPU:
         # print("    alu_in_2: " + str(self.dut.alu_in_2.value))
         # print("    alu_rs2_reg_ex: " + str(self.dut.alu_rs2_reg_ex.value))
         # print("    imm_ex: " + str(self.dut.imm_ex.value))
+
+        print("    jump: " + str(self.dut.jump.value))
+        print("    decoder.eq_en: " + str(self.dut.decoder.eq_en.value))
+        print("    decoder.imm: " + str(self.dut.decoder.imm.value))
+        print("    imm_ex: " + str(self.dut.imm_ex.value))
+        print("    pc_imm: " + str(self.dut.pc_imm.value))
 

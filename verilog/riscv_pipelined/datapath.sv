@@ -19,7 +19,7 @@ instruction_memory instruction_memory(
     .broken(broken)
 );
 
-wire pc_imm = pc + imm_ex;
+wire [31:0] pc_imm = pc_ex + imm_ex;
 wire jump = jump_always_ex | (jump_on_alu_true_ex & alu_result_ex[0]); //todo: verify understanding of boolean output to 32-bit type
 
 always @(posedge clk) begin
@@ -38,10 +38,15 @@ end
 // end instruction fetch
 
 logic [31:0] instr_id;
+logic [31:0] pc_id;
 
 if_id if_id(
     .instr_in(instr_if),
+    .pc_in(pc),
+
     .instr_out(instr_id),
+    .pc_out(pc_id),
+
     .clk(clk),
     .rst(rst | jump)
 );
@@ -182,6 +187,8 @@ logic skip_instr_ex;
 logic writeback_en_ex;
 logic writeback_from_mem_ex;
 
+logic [31:0] pc_ex;
+
 logic rs1_take_prev1_ex;
 logic rs2_take_prev1_ex;
 
@@ -207,6 +214,7 @@ id_ex id_ex(
     .writeback_from_mem_in(writeback_from_mem_id),
     .jump_on_alu_true_in(jump_on_alu_true_id),
     .jump_always_in(jump_always_id),
+    .pc_in(pc_id),
 
     .rd_addr_out(rd_addr_ex),
     .rs1_out(rs1_ex),
@@ -226,6 +234,7 @@ id_ex id_ex(
     .writeback_from_mem_out(writeback_from_mem_ex),
     .jump_on_alu_true_out(jump_on_alu_true_ex),
     .jump_always_out(jump_always_ex),
+    .pc_out(pc_ex),
 
     .skip(skip_instr_ex),
     .clk(clk),

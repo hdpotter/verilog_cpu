@@ -4,6 +4,7 @@ module id_ex(
     input logic [31:0] rs2_in,
     input logic writeback_en_in,
     input logic writeback_from_mem_in,
+    input logic [31:0] pc_in,
 
     input logic alu_rs2_reg_in,
     input logic [31:0] imm_in,
@@ -28,6 +29,7 @@ module id_ex(
     output logic [31:0] rs2_out,
     output logic writeback_en_out,
     output logic writeback_from_mem_out,
+    output logic [31:0] pc_out,
 
     output logic alu_rs2_reg_out,
     output logic [31:0] imm_out,
@@ -59,6 +61,7 @@ always @(posedge clk) begin
             rs2_out <= rs2_in;
             writeback_en_out <= writeback_en_in;
             writeback_from_mem_out <= writeback_from_mem_in;
+            pc_out <= pc_in;
 
             alu_rs2_reg_out <= alu_rs2_reg_in;
 
@@ -73,6 +76,7 @@ always @(posedge clk) begin
             xor_en_out <= xor_en_in;
             or_en_out <= or_en_in;
             and_en_out <= and_en_in;
+            eq_en_out <= eq_en_in;
 
             imm_out <= imm_in;
         end
@@ -83,6 +87,7 @@ always @(posedge clk) begin
         rs2_out <= 32'h0;
         writeback_en_out <= 1;
         writeback_from_mem_out <= 0;
+        pc_out <= 0; //todo: not technically accurate; better way to handle?
 
         alu_rs2_reg_out <= 0;
 
@@ -98,6 +103,7 @@ always @(posedge clk) begin
         xor_en_out <= 0;
         or_en_out <= 0;
         and_en_out <= 0;
+        eq_en_out <= 0;
 
         imm_out <= 32'h0;
     end
