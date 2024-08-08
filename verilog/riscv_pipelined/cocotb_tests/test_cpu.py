@@ -98,9 +98,7 @@ async def test_beq_simple(dut):
     cpu.instr("addi x2 x0 3")
     cpu.instr_ebreak()
 
-    await cpu.execute(print_pipeline=True)
-
-    cpu.print_first_regs(8)
+    await cpu.execute()
 
     assert cpu.register(1) == 5
     assert cpu.register(2) == 3
